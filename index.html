@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PASTAMAN — Good Pasta, Good People.</title>
+<style>
+:root{
+  --paper:#f8f5ea;
+  --paper2:#fffdf7;
+  --green:#173d2d;
+  --green2:#315f45;
+  --red:#b82d26;
+  --ink:#20221e;
+  --muted:#777568;
+  --line:rgba(23,61,45,.20);
+  --shadow:0 24px 60px rgba(38,44,35,.13);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 8% 14%,rgba(49,95,69,.055),transparent 22%),
+    radial-gradient(circle at 92% 55%,rgba(184,45,38,.04),transparent 22%),
+    var(--paper);
+  font-family:"Yu Mincho","Hiragino Mincho ProN","Times New Roman",serif;
+}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+.container{width:min(1180px,calc(100% - 44px));margin:auto}
+.header{
+  position:fixed;z-index:30;left:0;right:0;top:0;
+  height:74px;display:flex;align-items:center;
+  background:rgba(248,245,234,.88);backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(23,61,45,.10);
+}
+.header .inner{width:min(1240px,calc(100% - 36px));margin:auto;display:flex;align-items:center;justify-content:space-between}
+.brand{font-weight:900;letter-spacing:.10em;font-size:22px;color:var(--green)}
+.brand i{color:var(--red);font-style:normal}
+.nav{display:flex;gap:28px;font-size:12px;letter-spacing:.14em;color:var(--green)}
+.nav a{position:relative;padding:7px 0}.nav a:after{content:"";position:absolute;left:0;right:100%;bottom:0;height:1px;background:var(--red);transition:.25s}.nav a:hover:after{right:0}
+.hero{min-height:100vh;padding:122px 0 64px;display:grid;align-items:center;position:relative;overflow:hidden}
+.hero:before,.hero:after{content:"";position:absolute;border:1px solid var(--line);border-radius:50%;pointer-events:none}
+.hero:before{width:360px;height:360px;left:-170px;top:110px}.hero:after{width:490px;height:490px;right:-260px;bottom:-180px}
+.hero-grid{display:grid;grid-template-columns:.83fr 1.17fr;gap:54px;align-items:center}
+.kicker{font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--green2);margin-bottom:22px}
+.title{font-family:Georgia,"Times New Roman",serif;font-size:clamp(56px,8vw,112px);line-height:.80;letter-spacing:-.055em;color:var(--green);margin:0}
+.title span{display:block;color:var(--red);font-size:.30em;letter-spacing:.18em;margin-top:26px;font-weight:400}
+.hero-copy{margin:30px 0 34px;max-width:440px;font-size:15px;line-height:2;color:#56594f}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}.btn{padding:14px 22px;border:1px solid var(--green);font-size:12px;letter-spacing:.13em;text-transform:uppercase}.btn.primary{background:var(--green);color:white}.btn.red{border-color:var(--red);color:var(--red)}
+.hero-visual{position:relative;padding:22px}
+.hero-photo{border-radius:3px;box-shadow:var(--shadow);overflow:hidden;background:white;transform:rotate(.55deg)}
+.hero-photo img{width:100%;aspect-ratio:3/1;object-fit:cover}
+.sprig{position:absolute;width:150px;height:150px;pointer-events:none;opacity:.92}
+.sprig.one{right:-9px;top:-12px;transform:rotate(8deg)}.sprig.two{left:-40px;bottom:-45px;transform:rotate(190deg) scale(.8)}
+.leaf{position:absolute;width:56px;height:18px;border-radius:100% 0 100% 0;background:var(--green2);transform-origin:0 50%}
+.stem{position:absolute;width:145px;height:2px;background:var(--green2);top:70px;left:4px;transform:rotate(-38deg)}
+.leaf.l1{top:38px;left:28px;transform:rotate(-62deg)}.leaf.l2{top:58px;left:55px;transform:rotate(16deg) scale(.8)}.leaf.l3{top:87px;left:76px;transform:rotate(-55deg) scale(.75)}.leaf.l4{top:105px;left:100px;transform:rotate(18deg) scale(.62)}
+.section{padding:105px 0;border-top:1px solid rgba(23,61,45,.10)}
+.section-head{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:46px}.section-no{font-size:11px;letter-spacing:.23em;color:var(--red);text-transform:uppercase}.section h2{font-size:clamp(36px,5vw,70px);line-height:1;margin:8px 0 0;color:var(--green);font-weight:500}.section-note{max-width:340px;font-size:13px;line-height:1.9;color:var(--muted)}
+.special-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:center}.special-card{background:var(--paper2);padding:34px;border:1px solid var(--line);box-shadow:0 18px 50px rgba(41,46,35,.06)}
+.special-card img{width:100%;height:540px;object-fit:cover;object-position:center 16%}.menu-block{padding:16px 0}.menu-title{display:flex;align-items:center;gap:14px}.menu-title:after{content:"";height:1px;background:var(--line);flex:1}.menu-title h3{font-size:34px;margin:0;color:var(--green)}.price{font-style:italic;color:var(--red);margin:12px 0 28px}.copy{font-size:16px;line-height:2.15}.tags{margin-top:30px;display:flex;gap:9px;flex-wrap:wrap}.tag{border:1px solid var(--line);padding:8px 12px;border-radius:999px;font-size:10px;letter-spacing:.14em;color:var(--green)}
+.signature{padding:0;background:var(--green);color:white;overflow:hidden}.signature .inner{display:grid;grid-template-columns:1.25fr .75fr;min-height:460px}.signature img{width:100%;height:100%;object-fit:cover}.signature-copy{display:flex;flex-direction:column;justify-content:center;padding:60px}.signature small{letter-spacing:.22em;text-transform:uppercase;opacity:.70}.signature h2{font-size:clamp(44px,6vw,86px);line-height:.94;margin:16px 0 18px;font-weight:400}.signature p{line-height:2;opacity:.84}.serve{font-style:italic;color:#f0cfc8;margin-top:24px}
+.selection{background:var(--paper2)}.cards-layout{display:grid;grid-template-columns:1.2fr .8fr;gap:28px}.feature-card,.mini-card{position:relative;overflow:hidden;background:#141714;box-shadow:var(--shadow)}.feature-card{min-height:680px}.feature-card img,.mini-card img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease}.feature-card:hover img,.mini-card:hover img{transform:scale(1.025)}.card-overlay{position:absolute;inset:auto 0 0;padding:28px;color:white;background:linear-gradient(transparent,rgba(8,13,10,.86))}.card-overlay strong{display:block;font-size:30px}.card-overlay span{font-size:11px;letter-spacing:.18em;text-transform:uppercase;opacity:.75}.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.mini-card{min-height:330px}.mini-card .card-overlay{padding:18px}.mini-card .card-overlay strong{font-size:18px}.mini-card .card-overlay span{font-size:9px}.feature-ribbon{position:absolute;top:19px;left:19px;background:var(--red);color:white;padding:9px 12px;font-size:10px;letter-spacing:.14em;text-transform:uppercase}
+.ingredients{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--line)}.ingredient{padding:34px 26px;min-height:220px;border-right:1px solid var(--line)}.ingredient:last-child{border-right:0}.ingredient b{font-family:Georgia,serif;font-size:40px;font-weight:400;color:var(--red)}.ingredient h3{margin:24px 0 8px;color:var(--green);font-size:21px}.ingredient p{font-size:13px;line-height:1.8;color:var(--muted)}
+.gallery{background:#102f24;color:white}.gallery .section h2,.gallery h2{color:white}.gallery .section-note{color:#c3cfc7}.gallery-grid{display:grid;grid-template-columns:1.15fr .85fr .85fr;grid-auto-rows:260px;gap:16px}.gallery-grid img{width:100%;height:100%;object-fit:cover}.gallery-grid .tall{grid-row:span 2}.gallery-grid .wide{grid-column:span 2}
+.footer{padding:110px 0 55px;text-align:center;position:relative;overflow:hidden}.footer h2{font-family:Georgia,serif;color:var(--green);font-size:clamp(48px,8vw,100px);line-height:.88;margin:0}.footer h2 span{color:var(--red)}.footer p{margin:28px 0 50px;letter-spacing:.18em;color:var(--muted);font-size:11px}.footer-rule{height:1px;background:var(--line);margin:60px 0 22px}.copyright{font-size:10px;letter-spacing:.14em;color:#939184}
+@media (max-width:900px){.nav{display:none}.hero-grid,.special-grid,.signature .inner,.cards-layout{grid-template-columns:1fr}.hero{min-height:auto}.hero-visual{padding:0}.special-card img{height:auto}.signature img{min-height:300px}.signature-copy{padding:46px 28px}.feature-card{min-height:520px}.ingredients{grid-template-columns:1fr 1fr}.ingredient:nth-child(2){border-right:0}.ingredient:nth-child(-n+2){border-bottom:1px solid var(--line)}.gallery-grid{grid-template-columns:1fr 1fr}.gallery-grid .wide{grid-column:span 2}.section-head{display:block}.section-note{margin-top:16px}.hero-photo img{aspect-ratio:2.3/1}}
+@media (max-width:560px){.container{width:min(100% - 28px,1180px)}.hero{padding-top:110px}.title{font-size:58px}.mini-grid{grid-template-columns:1fr 1fr;gap:10px}.mini-card{min-height:230px}.feature-card{min-height:440px}.ingredients{grid-template-columns:1fr}.ingredient{border-right:0;border-bottom:1px solid var(--line)}.gallery-grid{display:grid;grid-template-columns:1fr;grid-auto-rows:260px}.gallery-grid .wide{grid-column:auto}.gallery-grid .tall{grid-row:auto}.section{padding:76px 0}}
+</style>
+</head>
+<body>
+<header class="header"><div class="inner"><a class="brand" href="#top">PASTA<i>MAN</i></a><nav class="nav"><a href="#special">SPECIAL</a><a href="#selection">SELECTION</a><a href="#ingredients">INGREDIENTS</a><a href="#gallery">GALLERY</a></nav></div></header>
+<main id="top">
+<section class="hero"><div class="container hero-grid"><div><div class="kicker">Italian Hero Selection / Today's Special</div><h1 class="title">PASTA<br>MAN<span>Good Pasta, Good People.</span></h1><p class="hero-copy">イタリアンのテーブルに、ひと皿の正義を。白、緑、赤。香草とトマトとパスタの香り。その中心にいるのは、ただ一人——パスタマン。</p><div class="hero-actions"><a class="btn primary" href="#special">Today's Special</a><a class="btn red" href="#selection">Pasta Selection</a></div></div><div class="hero-visual"><div class="sprig one"><i class="stem"></i><i class="leaf l1"></i><i class="leaf l2"></i><i class="leaf l3"></i><i class="leaf l4"></i></div><div class="hero-photo"><img src="assets/hero-wide.jpg" alt="パスタマン"></div><div class="sprig two"><i class="stem"></i><i class="leaf l1"></i><i class="leaf l2"></i><i class="leaf l3"></i><i class="leaf l4"></i></div></div></div></section>
+<section class="section" id="special"><div class="container"><div class="section-head"><div><div class="section-no">01 / Today's Special</div><h2>Il nostro eroe.</h2></div><p class="section-note">料理のメニューを読むように、パスタマンを味わう。設定を語りすぎず、見た目と空気で主役を売るセクション。</p></div><div class="special-grid"><div class="special-card"><img src="assets/card-pastaman.jpg" alt="パスタマン"></div><div class="menu-block"><div class="menu-title"><h3>PASTAMAN</h3></div><div class="price">Signature Hero — NOT FOR SALE</div><div class="copy">白を基調としたボディ。鮮やかなトマトレッドのマント。仕上げには、惜しみなくパスタを。<br><br>正義のために現れたのか。パスタのために現れたのか。その答えを知る者はいない。ただひとつ確かなのは、今日も彼はパスタマンである。</div><div class="tags"><span class="tag">PASTA</span><span class="tag">TOMATO RED</span><span class="tag">OLIVE BLACK</span><span class="tag">JUSTICE q.b.</span></div></div></div></div></section>
+<section class="signature"><div class="inner"><img src="assets/hero-wide.jpg" alt="パスタマン ヒーローカット"><div class="signature-copy"><small>02 / Signature Hero</small><h2>Pasta<br>Never Dies.</h2><p>香草の緑、テーブルクロスの白、トマトの赤。静かなレストランの美意識に、ヒーローの熱量をひとさじ。</p><div class="serve">Serve hot.</div></div></div></section>
+<section class="section selection" id="selection"><div class="container"><div class="section-head"><div><div class="section-no">03 / Pasta Selection</div><h2>Selected Heroes</h2></div><p class="section-note">主役はあくまでパスタマン。他のヒーローは、小さな“別皿”として世界を広げる。</p></div><div class="cards-layout"><article class="feature-card"><img src="assets/card-pastaman.jpg" alt="パスタマン"><div class="feature-ribbon">Chef's Recommendation</div><div class="card-overlay"><span>Signature Selection</span><strong>PASTAMAN</strong></div></article><div class="mini-grid"><article class="mini-card"><img src="assets/card-02.jpg" alt="Pasta Hero"><div class="card-overlay"><span>Other Selection</span><strong>PASTA HERO</strong></div></article><article class="mini-card"><img src="assets/card-03.jpg" alt="Pasta Hero"><div class="card-overlay"><span>Other Selection</span><strong>PASTA HERO</strong></div></article><article class="mini-card"><img src="assets/card-04.jpg" alt="Pasta Hero"><div class="card-overlay"><span>Other Selection</span><strong>PASTA HERO</strong></div></article><article class="mini-card"><img src="assets/card-05.jpg" alt="Pasta Hero"><div class="card-overlay"><span>Other Selection</span><strong>PASTA HERO</strong></div></article></div></div></div></section>
+<section class="section" id="ingredients"><div class="container"><div class="section-head"><div><div class="section-no">04 / Ingredients</div><h2>Composizione.</h2></div><p class="section-note">パスタマンを構成する、たった四つの要素。料理メニューの食材説明のように見せる。</p></div><div class="ingredients"><div class="ingredient"><b>01</b><h3>PASTA</h3><p>惜しみなく。主役になる量を。</p></div><div class="ingredient"><b>02</b><h3>TOMATO RED</h3><p>マントに、情熱をひとさじ。</p></div><div class="ingredient"><b>03</b><h3>OLIVE BLACK</h3><p>サングラスで味を締める。</p></div><div class="ingredient"><b>04</b><h3>JUSTICE</h3><p>q.b. — お好みで、適量。</p></div></div></div></section>
+<section class="section gallery" id="gallery"><div class="container"><div class="section-head"><div><div class="section-no">05 / La Galleria</div><h2>Hero in every moment.</h2></div><p class="section-note">写真集ではなく、料理雑誌のエディトリアル。余白の中に強い写真を置き、パスタマンを“ブランド”として見せる。</p></div><div class="gallery-grid"><img class="tall" src="assets/card-pastaman.jpg" alt="Pastaman"><img src="assets/card-02.jpg" alt="Pasta Hero"><img src="assets/card-03.jpg" alt="Pasta Hero"><img class="wide" src="assets/hero-wide.jpg" alt="Pastaman"><img src="assets/card-04.jpg" alt="Pasta Hero"><img src="assets/card-05.jpg" alt="Pasta Hero"></div></div></section>
+<footer class="footer"><div class="container"><h2>GOOD PASTA.<br><span>GOOD PEOPLE.</span></h2><p>PASTAMAN — SIGNATURE HERO</p><a class="btn primary" href="#top">BACK TO TOP</a><div class="footer-rule"></div><div class="copyright">PASTAMAN / ITALIAN HERO SELECTION</div></div></footer>
+</main>
+</body>
+</html>
