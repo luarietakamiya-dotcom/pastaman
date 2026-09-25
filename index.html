@@ -26,7 +26,27 @@ radial-gradient(circle at 90% 45%,rgba(184,45,38,.05),transparent 22%)}
 .title span{display:block;color:var(--red);font-size:.28em;letter-spacing:.18em;margin-top:24px;font-weight:400}
 .lead{line-height:2;color:#55594f;max-width:460px}.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
 .btn{border:1px solid var(--green);background:transparent;padding:13px 18px;font-size:12px;letter-spacing:.1em;cursor:pointer}.btn.primary{background:var(--green);color:white}.btn.red{color:var(--red);border-color:var(--red)}
-.hero-photo{overflow:hidden;background:#fff;box-shadow:var(--shadow);border:1px solid rgba(23,61,45,.08)}.hero-photo img{width:100%;aspect-ratio:3/1;object-fit:cover}
+.hero-visual{position:relative;padding:34px 30px 38px 36px;min-height:360px;display:flex;align-items:center;justify-content:center}
+.hero-photo{position:relative;z-index:3;overflow:hidden;background:#fff;box-shadow:var(--shadow);border:1px solid rgba(23,61,45,.10);width:100%}
+.hero-photo img{width:100%;aspect-ratio:2.65/1;object-fit:cover}
+.hero-visual:before{content:"";position:absolute;z-index:1;width:72%;height:72%;border:1px solid rgba(184,45,38,.20);border-radius:50%;right:2%;top:2%;transform:rotate(-9deg)}
+.hero-visual:after{content:"PASTAMAN / SPECIALITÀ DELLA CASA";position:absolute;z-index:4;right:12px;bottom:5px;font-size:10px;letter-spacing:.20em;color:var(--red);white-space:nowrap}
+.hero-caption{position:absolute;z-index:4;left:36px;bottom:4px;font-size:10px;letter-spacing:.14em;color:var(--green2);font-style:italic}
+.hero-line{position:absolute;z-index:2;left:8px;right:0;bottom:24px;height:1px;background:linear-gradient(90deg,transparent,var(--red),transparent);opacity:.55}
+.hero-pasta-line{position:absolute;z-index:1;inset:0;pointer-events:none;opacity:.12}
+.hero-pasta-line:before,.hero-pasta-line:after{content:"";position:absolute;border:2px solid var(--green2);border-radius:50%}
+.hero-pasta-line:before{width:180px;height:58px;left:4%;top:10%;transform:rotate(17deg)}
+.hero-pasta-line:after{width:240px;height:74px;right:1%;bottom:6%;transform:rotate(-13deg)}
+.botanical{position:absolute;z-index:5;width:150px;height:150px;pointer-events:none;opacity:.92}
+.botanical .stem{position:absolute;width:145px;height:2px;background:var(--green2);top:70px;left:4px;transform:rotate(-38deg);transform-origin:left center}
+.botanical .leaf{position:absolute;width:56px;height:18px;border-radius:100% 0 100% 0;background:var(--green2);transform-origin:0 50%}
+.botanical .l1{top:38px;left:28px;transform:rotate(-62deg)}
+.botanical .l2{top:58px;left:55px;transform:rotate(16deg) scale(.82)}
+.botanical .l3{top:87px;left:76px;transform:rotate(-55deg) scale(.76)}
+.botanical .l4{top:105px;left:100px;transform:rotate(18deg) scale(.62)}
+.botanical.top-right{right:-8px;top:-6px;transform:rotate(10deg) scale(.95)}
+.botanical.bottom-left{left:-10px;bottom:-6px;transform:rotate(192deg) scale(.78)}
+.specialita-note{margin-top:14px;color:var(--red);font-size:12px;letter-spacing:.14em;font-style:italic}
 .section{padding:96px 0;border-top:1px solid var(--line)}.section.alt{background:var(--paper2)}.section.dark{background:var(--green);color:white}.section.dark h2{color:white}.section-head{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:42px}
 .eyebrow{font-size:11px;color:var(--red);letter-spacing:.2em;text-transform:uppercase}.section h2{margin:7px 0 0;font-size:clamp(36px,5vw,68px);font-weight:500;color:var(--green);line-height:1}.note{max-width:390px;color:var(--muted);font-size:13px;line-height:1.9}.dark .note{color:#c8d4cc}
 .feature-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:34px}.feature-visual{background:white;padding:24px;border:1px solid var(--line);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center}.feature-visual img{width:100%;height:auto;max-height:720px;object-fit:contain;object-position:center}
@@ -47,8 +67,8 @@ radial-gradient(circle at 90% 45%,rgba(184,45,38,.05),transparent 22%)}
 .modal{position:fixed;inset:0;background:rgba(8,18,13,.72);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}.modal.show{display:flex}.modal-card{background:var(--paper2);width:min(620px,100%);max-height:86vh;overflow:auto;padding:30px;border:1px solid var(--line);box-shadow:0 24px 80px rgba(0,0,0,.35)}
 .modal-card h3{font-size:30px;margin:0 0 6px;color:var(--green)}.modal-card .sub{color:var(--red);font-style:italic}.terms{margin:22px 0;padding:18px;border:1px solid var(--line);background:#fbf8ef;font-size:13px;line-height:1.85}.agree{display:flex;gap:10px;align-items:flex-start;font-size:13px}.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
 .mobile-menu{display:none}
-@media(max-width:920px){.nav{display:none}.mobile-menu{display:block}.hero-grid,.feature-grid,.player-wrap{grid-template-columns:1fr}.feed-grid{grid-template-columns:1fr 1fr}.material-grid{grid-template-columns:1fr 1fr}.gallery-grid{grid-template-columns:1fr 1fr}.gallery-grid .wide{grid-column:span 2}.feature-visual img{height:auto}.section-head{display:block}.note{margin-top:15px}}
-@media(max-width:600px){.container{width:min(100% - 24px,1180px)}.hero{padding-top:104px}.feed-grid,.material-grid,.gallery-grid{grid-template-columns:1fr}.gallery-grid .wide{grid-column:auto}.gallery-grid .tall{grid-row:auto}.header-in{gap:10px}.lang select{max-width:116px}.title{font-size:60px}.section{padding:72px 0}}
+@media(max-width:920px){.nav{display:none}.mobile-menu{display:block}.hero-grid,.feature-grid,.player-wrap{grid-template-columns:1fr}.hero-visual{padding:28px 24px 34px;min-height:300px}.botanical.top-right{right:-10px;top:-18px}.botanical.bottom-left{left:-18px;bottom:-18px}.feed-grid{grid-template-columns:1fr 1fr}.material-grid{grid-template-columns:1fr 1fr}.gallery-grid{grid-template-columns:1fr 1fr}.gallery-grid .wide{grid-column:span 2}.feature-visual img{height:auto}.section-head{display:block}.note{margin-top:15px}}
+@media(max-width:600px){.container{width:min(100% - 24px,1180px)}.hero{padding-top:104px}.hero-visual{padding:18px 8px 28px}.botanical{display:none}.hero-visual:after{right:8px;bottom:4px;font-size:8px;letter-spacing:.12em}.hero-caption{left:8px;bottom:4px;font-size:8px}.feed-grid,.material-grid,.gallery-grid{grid-template-columns:1fr}.gallery-grid .wide{grid-column:auto}.gallery-grid .tall{grid-row:auto}.header-in{gap:10px}.lang select{max-width:116px}.title{font-size:60px}.section{padding:72px 0}}
 </style>
 </head>
 <body>
@@ -77,9 +97,17 @@ radial-gradient(circle at 90% 45%,rgba(184,45,38,.05),transparent 22%)}
    <div class="kicker" data-i18n="hero_kicker">Italian Hero Portal / Official Selection</div>
    <h1 class="title">PASTA<br>MAN<span>Good Pasta, Good People.</span></h1>
    <p class="lead" data-i18n="hero_lead">パスタマンの投稿、音楽、動画、イラスト、素材をひとつのテーブルに。見る、聴く、楽しむ、つくる。ここはパスタマン公式ポータルです。</p>
+   <div class="specialita-note">— Specialità della casa —</div>
    <div class="hero-actions"><a class="btn primary" href="#piazza" data-i18n="hero_cta1">投稿を見る</a><a class="btn red" href="#musica" data-i18n="hero_cta2">音楽を聴く</a></div>
   </div>
-  <div class="hero-photo"><img src="assets/hero-wide.png" alt="PASTAMAN"></div>
+  <div class="hero-visual">
+    <div class="hero-pasta-line" aria-hidden="true"></div>
+    <div class="botanical top-right" aria-hidden="true"><span class="stem"></span><span class="leaf l1"></span><span class="leaf l2"></span><span class="leaf l3"></span><span class="leaf l4"></span></div>
+    <div class="hero-photo"><img src="assets/hero-wide.png" alt="PASTAMAN"></div>
+    <div class="botanical bottom-left" aria-hidden="true"><span class="stem"></span><span class="leaf l1"></span><span class="leaf l2"></span><span class="leaf l3"></span><span class="leaf l4"></span></div>
+    <div class="hero-line" aria-hidden="true"></div>
+    <div class="hero-caption">Good Pasta, Good People.</div>
+   </div>
  </div>
 </section>
 
