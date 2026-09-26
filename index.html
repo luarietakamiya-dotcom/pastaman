@@ -1,277 +1,64 @@
 <!doctype html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="theme-color" content="#f7f2e6" />
 <title>PASTAMAN — Good Pasta, Good People.</title>
 <style>
 :root{
- --paper:#f7f2e7;--paper2:#fffdf7;--green:#173d2d;--green2:#315f45;--red:#b82d26;--ink:#20221e;
- --muted:#777568;--line:rgba(23,61,45,.18);--shadow:0 22px 60px rgba(34,48,39,.12)
+  --paper:#f7f2e6;--paper2:#fffdf8;--cream:#eee4cf;--green:#153b2b;--green2:#2e6347;
+  --red:#b52e28;--ink:#20221f;--muted:#777365;--line:rgba(21,59,43,.16);--soft:rgba(21,59,43,.06);
+  --shadow:0 28px 70px rgba(35,42,33,.12);--radius:18px;
 }
-*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:var(--paper);font-family:"Yu Mincho","Hiragino Mincho ProN","Times New Roman",serif}
-a{color:inherit;text-decoration:none}button,select{font:inherit}img{display:block;max-width:100%}.container{width:min(1180px,calc(100% - 36px));margin:auto}
-.header{position:fixed;z-index:50;inset:0 0 auto 0;height:74px;background:rgba(247,242,231,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
-.header-in{height:100%;display:flex;align-items:center;gap:26px;justify-content:space-between;width:min(1240px,calc(100% - 28px));margin:auto}
-.brand{font-size:22px;font-weight:900;letter-spacing:.11em;color:var(--green)}.brand i{font-style:normal;color:var(--red)}
-.nav{display:flex;align-items:center;gap:24px}.nav-item{position:relative;font-size:12px;letter-spacing:.08em;color:var(--green);cursor:pointer;padding:8px 0}
-.tip{position:absolute;top:31px;left:50%;transform:translateX(-50%) translateY(-4px);opacity:0;pointer-events:none;white-space:nowrap;background:var(--paper2);color:var(--ink);border:1px solid var(--line);padding:8px 10px;font-size:11px;box-shadow:0 10px 30px rgba(0,0,0,.08);transition:.18s;z-index:80}
-.nav-item:hover .tip,.nav-item:focus .tip{opacity:1;transform:translateX(-50%) translateY(0)}
-.lang{display:flex;align-items:center;gap:8px}.lang select{border:1px solid var(--line);background:var(--paper2);padding:8px 10px;color:var(--green)}
-.hero{padding:120px 0 66px;min-height:90vh;display:grid;align-items:center;background:
-radial-gradient(circle at 12% 18%,rgba(49,95,69,.07),transparent 20%),
-radial-gradient(circle at 90% 45%,rgba(184,45,38,.05),transparent 22%)}
-.hero-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:52px;align-items:center}.kicker{font-size:11px;letter-spacing:.22em;color:var(--green2);text-transform:uppercase}
-.title{font-family:Georgia,serif;color:var(--green);font-size:clamp(58px,8vw,112px);line-height:.82;letter-spacing:-.05em;margin:14px 0 22px}
-.title span{display:block;color:var(--red);font-size:.28em;letter-spacing:.18em;margin-top:24px;font-weight:400}
-.lead{line-height:2;color:#55594f;max-width:460px}.hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:28px}
-.btn{border:1px solid var(--green);background:transparent;padding:13px 18px;font-size:12px;letter-spacing:.1em;cursor:pointer}.btn.primary{background:var(--green);color:white}.btn.red{color:var(--red);border-color:var(--red)}
-.hero-visual{position:relative;padding:34px 30px 38px 36px;min-height:360px;display:flex;align-items:center;justify-content:center}
-.hero-photo{position:relative;z-index:3;overflow:hidden;background:#fff;box-shadow:var(--shadow);border:1px solid rgba(23,61,45,.10);width:100%}
-.hero-photo img{width:100%;aspect-ratio:2.65/1;object-fit:cover}
-.hero-visual:before{content:"";position:absolute;z-index:1;width:72%;height:72%;border:1px solid rgba(184,45,38,.20);border-radius:50%;right:2%;top:2%;transform:rotate(-9deg)}
-.hero-visual:after{content:"PASTAMAN / SPECIALITÀ DELLA CASA";position:absolute;z-index:4;right:12px;bottom:5px;font-size:10px;letter-spacing:.20em;color:var(--red);white-space:nowrap}
-.hero-caption{position:absolute;z-index:4;left:36px;bottom:4px;font-size:10px;letter-spacing:.14em;color:var(--green2);font-style:italic}
-.hero-line{position:absolute;z-index:2;left:8px;right:0;bottom:24px;height:1px;background:linear-gradient(90deg,transparent,var(--red),transparent);opacity:.55}
-.hero-pasta-line{position:absolute;z-index:1;inset:0;pointer-events:none;opacity:.12}
-.hero-pasta-line:before,.hero-pasta-line:after{content:"";position:absolute;border:2px solid var(--green2);border-radius:50%}
-.hero-pasta-line:before{width:180px;height:58px;left:4%;top:10%;transform:rotate(17deg)}
-.hero-pasta-line:after{width:240px;height:74px;right:1%;bottom:6%;transform:rotate(-13deg)}
-.botanical{position:absolute;z-index:5;width:150px;height:150px;pointer-events:none;opacity:.92}
-.botanical .stem{position:absolute;width:145px;height:2px;background:var(--green2);top:70px;left:4px;transform:rotate(-38deg);transform-origin:left center}
-.botanical .leaf{position:absolute;width:56px;height:18px;border-radius:100% 0 100% 0;background:var(--green2);transform-origin:0 50%}
-.botanical .l1{top:38px;left:28px;transform:rotate(-62deg)}
-.botanical .l2{top:58px;left:55px;transform:rotate(16deg) scale(.82)}
-.botanical .l3{top:87px;left:76px;transform:rotate(-55deg) scale(.76)}
-.botanical .l4{top:105px;left:100px;transform:rotate(18deg) scale(.62)}
-.botanical.top-right{right:-8px;top:-6px;transform:rotate(10deg) scale(.95)}
-.botanical.bottom-left{left:-10px;bottom:-6px;transform:rotate(192deg) scale(.78)}
-.specialita-note{margin-top:14px;color:var(--red);font-size:12px;letter-spacing:.14em;font-style:italic}
-.section{padding:96px 0;border-top:1px solid var(--line)}.section.alt{background:var(--paper2)}.section.dark{background:var(--green);color:white}.section.dark h2{color:white}.section-head{display:flex;justify-content:space-between;gap:24px;align-items:end;margin-bottom:42px}
-.eyebrow{font-size:11px;color:var(--red);letter-spacing:.2em;text-transform:uppercase}.section h2{margin:7px 0 0;font-size:clamp(36px,5vw,68px);font-weight:500;color:var(--green);line-height:1}.note{max-width:390px;color:var(--muted);font-size:13px;line-height:1.9}.dark .note{color:#c8d4cc}
-.feature-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:34px}.feature-visual{background:white;padding:24px;border:1px solid var(--line);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center}.feature-visual img{width:100%;height:auto;max-height:720px;object-fit:contain;object-position:center}
-.menu-copy h3{font-size:34px;color:var(--green);margin:0 0 8px}.price{font-style:italic;color:var(--red);margin-bottom:24px}.menu-copy p{line-height:2.05}
-.tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}.tag{border:1px solid var(--line);padding:7px 11px;border-radius:999px;font-size:10px;letter-spacing:.12em;color:var(--green)}
-.feed-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px}.filter{border:1px solid var(--line);background:var(--paper2);color:var(--green);padding:9px 13px;cursor:pointer}.filter.active{background:var(--green);color:#fff}
-.feed-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.post-card{background:var(--paper2);border:1px solid var(--line);padding:18px;min-height:230px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 12px 30px rgba(34,48,39,.05)}
-.post-meta{display:flex;align-items:center;justify-content:space-between;gap:12px}.post-type{font-size:10px;letter-spacing:.14em;color:var(--red);text-transform:uppercase}.post-author{font-size:12px;color:var(--green2)}
-.post-card h3{font-size:20px;margin:18px 0 9px;color:var(--green)}.post-card p{font-size:13px;line-height:1.85;color:#5c5f56}.post-link{font-size:11px;letter-spacing:.12em;color:var(--red);margin-top:18px}
-.player-wrap{display:grid;grid-template-columns:.8fr 1.2fr;gap:28px;align-items:center}.player-art{background:#0e2b20;border:1px solid rgba(255,255,255,.12);padding:28px}.player-art .disc{aspect-ratio:1;border-radius:50%;border:22px solid #e9e1cf;background:radial-gradient(circle,#b82d26 0 14%,#f7f2e7 15% 24%,#1e1e1e 25% 100%);box-shadow:0 20px 40px rgba(0,0,0,.2)}
-.player-panel{border:1px solid rgba(255,255,255,.18);padding:28px}.now{font-size:11px;letter-spacing:.2em;color:#f2cbc6}.track{font-size:34px;margin:8px 0 4px}.track-sub{opacity:.72}
-.controls{display:flex;gap:10px;align-items:center;margin-top:26px;flex-wrap:wrap}.control{width:46px;height:46px;border-radius:50%;border:1px solid rgba(255,255,255,.32);background:transparent;color:white;cursor:pointer;transition:.18s}.control:hover{background:rgba(255,255,255,.08)}.control.play{width:58px;height:58px;background:white;color:var(--green)}
-.progress{margin-top:24px;height:4px;background:rgba(255,255,255,.2);position:relative;cursor:pointer}.progress span{display:block;width:0;height:100%;background:#fff}
-.volume-wrap{display:flex;align-items:center;gap:10px;margin-left:8px;min-width:190px}.volume-icon{font-size:17px;opacity:.9}.volume-slider{appearance:none;width:150px;height:4px;border-radius:999px;background:rgba(255,255,255,.28);outline:none}.volume-slider::-webkit-slider-thumb{appearance:none;width:14px;height:14px;border-radius:50%;background:#fff;cursor:pointer}.volume-slider::-moz-range-thumb{width:14px;height:14px;border:0;border-radius:50%;background:#fff;cursor:pointer}.time-row{display:flex;justify-content:space-between;margin-top:8px;font-size:10px;letter-spacing:.08em;opacity:.65}
-.gallery-grid{display:grid;grid-template-columns:1.2fr .8fr .8fr;grid-auto-rows:230px;gap:14px}.gallery-grid img{width:100%;height:100%;object-fit:cover}.gallery-grid .tall{grid-row:span 2}.gallery-grid .wide{grid-column:span 2}
-.material-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.material-card{background:var(--paper2);border:1px solid var(--line);padding:24px}.material-card h3{margin:0 0 8px;color:var(--green)}.material-card p{font-size:13px;line-height:1.8;color:var(--muted)}.material-card button{margin-top:18px}
-.footer{padding:90px 0 44px;text-align:center}.footer h2{font-family:Georgia,serif;font-size:clamp(48px,8vw,96px);line-height:.88;color:var(--green);margin:0}.footer h2 span{color:var(--red)}.footer p{font-size:11px;letter-spacing:.16em;color:var(--muted);margin-top:26px}
-.modal{position:fixed;inset:0;background:rgba(8,18,13,.72);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}.modal.show{display:flex}.modal-card{background:var(--paper2);width:min(620px,100%);max-height:86vh;overflow:auto;padding:30px;border:1px solid var(--line);box-shadow:0 24px 80px rgba(0,0,0,.35)}
-.modal-card h3{font-size:30px;margin:0 0 6px;color:var(--green)}.modal-card .sub{color:var(--red);font-style:italic}.terms{margin:22px 0;padding:18px;border:1px solid var(--line);background:#fbf8ef;font-size:13px;line-height:1.85}.agree{display:flex;gap:10px;align-items:flex-start;font-size:13px}.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:22px}
-.mobile-menu{display:none}
-@media(max-width:920px){.nav{display:none}.mobile-menu{display:block}.hero-grid,.feature-grid,.player-wrap{grid-template-columns:1fr}.hero-visual{padding:28px 24px 34px;min-height:300px}.botanical.top-right{right:-10px;top:-18px}.botanical.bottom-left{left:-18px;bottom:-18px}.feed-grid{grid-template-columns:1fr 1fr}.material-grid{grid-template-columns:1fr 1fr}.gallery-grid{grid-template-columns:1fr 1fr}.gallery-grid .wide{grid-column:span 2}.feature-visual img{height:auto}.section-head{display:block}.note{margin-top:15px}}
-@media(max-width:600px){.container{width:min(100% - 24px,1180px)}.hero{padding-top:104px}.hero-visual{padding:18px 8px 28px}.botanical{display:none}.hero-visual:after{right:8px;bottom:4px;font-size:8px;letter-spacing:.12em}.hero-caption{left:8px;bottom:4px;font-size:8px}.feed-grid,.material-grid,.gallery-grid{grid-template-columns:1fr}.gallery-grid .wide{grid-column:auto}.gallery-grid .tall{grid-row:auto}.header-in{gap:10px}.lang select{max-width:116px}.title{font-size:60px}.section{padding:72px 0}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;color:var(--ink);background:
+radial-gradient(circle at 6% 14%,rgba(46,99,71,.06),transparent 24%),radial-gradient(circle at 92% 60%,rgba(181,46,40,.045),transparent 26%),var(--paper);
+font-family:"Yu Mincho","Hiragino Mincho ProN","Times New Roman",serif;overflow-x:hidden}
+a{color:inherit;text-decoration:none}button,input{font:inherit}img{display:block;max-width:100%}.container{width:min(1180px,calc(100% - 44px));margin:auto}
+.header{position:fixed;z-index:50;left:0;right:0;top:0;height:76px;display:flex;align-items:center;background:rgba(247,242,230,.82);backdrop-filter:blur(16px);border-bottom:1px solid rgba(21,59,43,.09)}
+.header .inner{width:min(1240px,calc(100% - 36px));margin:auto;display:flex;align-items:center;justify-content:space-between;gap:24px}.brand{font-weight:900;letter-spacing:.11em;font-size:22px;color:var(--green)}.brand i{color:var(--red);font-style:normal}.nav{display:flex;gap:25px;font-size:11px;letter-spacing:.14em;color:var(--green)}.nav a{position:relative;padding:8px 0}.nav a:after{content:"";position:absolute;left:0;right:100%;bottom:0;height:1px;background:var(--red);transition:.24s}.nav a:hover:after{right:0}.nav a[data-jp]:hover:before{content:attr(data-jp);position:absolute;white-space:nowrap;top:30px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;padding:6px 8px;font-size:9px;letter-spacing:.08em;border-radius:999px}
+.hero{min-height:100vh;padding:120px 0 70px;display:grid;align-items:center;position:relative;overflow:hidden}.hero:before,.hero:after{content:"";position:absolute;border:1px solid var(--line);border-radius:50%;pointer-events:none}.hero:before{width:420px;height:420px;left:-210px;top:100px}.hero:after{width:560px;height:560px;right:-310px;bottom:-220px}.hero-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:58px;align-items:center}.kicker{font-size:11px;letter-spacing:.26em;text-transform:uppercase;color:var(--green2);margin-bottom:24px}.title{font-family:Georgia,"Times New Roman",serif;font-size:clamp(62px,8.4vw,118px);line-height:.78;letter-spacing:-.06em;color:var(--green);margin:0}.title span{display:block;color:var(--red);font-size:.27em;letter-spacing:.18em;margin-top:29px;font-weight:400}.hero-copy{margin:32px 0 34px;max-width:450px;font-size:15px;line-height:2;color:#55584f}.hero-actions{display:flex;gap:12px;flex-wrap:wrap}.btn{appearance:none;background:none;cursor:pointer;padding:14px 22px;border:1px solid var(--green);font-size:11px;letter-spacing:.13em;text-transform:uppercase;transition:.22s}.btn:hover{transform:translateY(-2px)}.btn.primary{background:var(--green);color:white}.btn.red{border-color:var(--red);color:var(--red)}.hero-visual{position:relative;padding:22px}.hero-photo{border-radius:5px;box-shadow:var(--shadow);overflow:hidden;background:white;transform:rotate(.55deg)}.hero-photo img{width:100%;aspect-ratio:3/1;object-fit:cover}.hero-seal{position:absolute;right:-8px;bottom:-12px;width:132px;height:132px;border-radius:50%;background:var(--red);color:#fff;display:grid;place-items:center;text-align:center;font-size:10px;letter-spacing:.18em;line-height:1.7;transform:rotate(8deg);box-shadow:0 18px 42px rgba(181,46,40,.22)}
+.sprig{position:absolute;width:150px;height:150px;pointer-events:none;opacity:.9}.sprig.one{right:-10px;top:-16px;transform:rotate(8deg)}.sprig.two{left:-40px;bottom:-45px;transform:rotate(190deg) scale(.8)}.leaf{position:absolute;width:56px;height:18px;border-radius:100% 0 100% 0;background:var(--green2);transform-origin:0 50%}.stem{position:absolute;width:145px;height:2px;background:var(--green2);top:70px;left:4px;transform:rotate(-38deg)}.leaf.l1{top:38px;left:28px;transform:rotate(-62deg)}.leaf.l2{top:58px;left:55px;transform:rotate(16deg) scale(.8)}.leaf.l3{top:87px;left:76px;transform:rotate(-55deg) scale(.75)}.leaf.l4{top:105px;left:100px;transform:rotate(18deg) scale(.62)}
+.section{padding:108px 0;border-top:1px solid rgba(21,59,43,.09);position:relative}.section-head{display:flex;align-items:end;justify-content:space-between;gap:22px;margin-bottom:46px}.section-no{font-size:10px;letter-spacing:.24em;color:var(--red);text-transform:uppercase}.section h2{font-size:clamp(40px,5vw,72px);line-height:.96;margin:8px 0 0;color:var(--green);font-weight:500}.section-note{max-width:360px;font-size:13px;line-height:1.9;color:var(--muted)}
+.special-grid{display:grid;grid-template-columns:1.03fr .97fr;gap:54px;align-items:center}.special-card{background:var(--paper2);padding:26px;border:1px solid var(--line);box-shadow:0 18px 50px rgba(41,46,35,.06);position:relative}.special-card img{width:100%;height:560px;object-fit:cover;object-position:center 16%}.special-badge{position:absolute;left:44px;top:44px;background:rgba(255,253,248,.92);backdrop-filter:blur(8px);padding:10px 12px;font-size:10px;letter-spacing:.18em;color:var(--red)}.menu-title{display:flex;align-items:center;gap:14px}.menu-title:after{content:"";height:1px;background:var(--line);flex:1}.menu-title h3{font-size:36px;margin:0;color:var(--green)}.eyebrow{font-size:11px;letter-spacing:.18em;color:var(--red);text-transform:uppercase;margin-bottom:12px}.copy{font-size:16px;line-height:2.1}.tags{margin-top:28px;display:flex;gap:9px;flex-wrap:wrap}.tag{border:1px solid var(--line);padding:8px 12px;border-radius:999px;font-size:10px;letter-spacing:.13em;color:var(--green)}
+.piazza{background:var(--paper2)}.filter-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:26px}.filter-btn{border:1px solid var(--line);background:transparent;color:var(--green);padding:9px 13px;border-radius:999px;font-size:10px;letter-spacing:.08em;cursor:pointer}.filter-btn.active{background:var(--green);color:#fff}.masonry{columns:3 280px;column-gap:18px}.post-card{break-inside:avoid;margin:0 0 18px;background:#fff;border:1px solid var(--line);box-shadow:0 14px 30px rgba(30,39,30,.055);overflow:hidden}.post-card img{width:100%;height:auto}.post-meta{padding:18px 18px 20px}.post-meta small{display:block;font-size:9px;letter-spacing:.14em;color:var(--red);text-transform:uppercase;margin-bottom:8px}.post-meta strong{display:block;font-size:20px;color:var(--green)}.post-meta p{font-size:12px;line-height:1.7;color:var(--muted);margin:8px 0 0}
+.musica{background:var(--green);color:#fff}.musica .section h2,.musica h2{color:#fff}.musica .section-note{color:#c8d4cd}.player{display:grid;grid-template-columns:.9fr 1.1fr;gap:52px;align-items:center}.record-wrap{display:grid;place-items:center;min-height:430px}.record{width:min(390px,80vw);aspect-ratio:1;border-radius:50%;background:repeating-radial-gradient(circle at center,#121212 0 2px,#1d1d1d 3px 7px,#101010 8px 10px);position:relative;box-shadow:0 35px 65px rgba(0,0,0,.35);transition:transform .25s}.record:before{content:"PASTAMAN\A MAIN THEME";white-space:pre;position:absolute;inset:31%;border-radius:50%;display:grid;place-items:center;text-align:center;background:#efe1c3;color:var(--green);font-size:12px;line-height:1.5;letter-spacing:.12em;border:10px solid var(--red)}.record:after{content:"";position:absolute;width:13px;height:13px;background:#151515;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}.record.playing{animation:spin 7s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}.track-eyebrow{font-size:10px;letter-spacing:.24em;text-transform:uppercase;opacity:.65}.track-title{font-size:clamp(38px,5vw,70px);line-height:.95;margin:12px 0 8px;font-weight:400}.composer{color:#e5b9ae;font-style:italic;margin-bottom:34px}.transport{display:flex;align-items:center;gap:18px;margin-bottom:22px}.play{width:58px;height:58px;border-radius:50%;border:1px solid rgba(255,255,255,.45);background:white;color:var(--green);cursor:pointer;font-size:21px}.time{font-size:11px;letter-spacing:.12em;opacity:.72;min-width:98px}.range{width:100%;accent-color:#d7b49d}.volume-row{display:flex;gap:12px;align-items:center;margin-top:14px;font-size:12px;opacity:.85}.music-note{font-size:12px;line-height:1.8;opacity:.72;margin-top:18px}
+.ricette-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:28px}.recipe-hero{background:var(--paper2);border:1px solid var(--line);padding:28px}.recipe-visual{position:relative;min-height:430px;background:linear-gradient(135deg,#f4e3bc,#dcd8bf);overflow:hidden;display:grid;place-items:center}.plate{width:280px;height:280px;border-radius:50%;background:#fff;box-shadow:inset 0 0 0 18px #eee8dd,0 30px 48px rgba(70,59,34,.14);position:relative}.plate:before{content:"";position:absolute;inset:60px;border-radius:50%;background:repeating-radial-gradient(circle,#d6b13e 0 5px,#c79d2a 6px 10px);filter:saturate(.85)}.plate:after{content:"🌿";position:absolute;font-size:46px;left:48%;top:43%;transform:translate(-50%,-50%) rotate(-20deg)}.recipe-title{font-size:36px;color:var(--green);margin:26px 0 10px}.recipe-meta{display:flex;gap:10px;flex-wrap:wrap}.recipe-side{display:grid;gap:18px}.recipe-block{border:1px solid var(--line);background:rgba(255,255,255,.34);padding:26px}.recipe-block h3{margin:0 0 14px;color:var(--green);font-size:23px}.recipe-block p,.recipe-block li{font-size:13px;line-height:1.9;color:var(--muted)}
+.editorial{background:#102f24;color:#fff}.editorial h2{color:#fff}.editorial .section-note{color:#c6d1ca}.editorial-grid{display:grid;grid-template-columns:1.1fr .65fr .85fr;grid-auto-rows:235px;gap:14px}.editorial-grid figure{margin:0;position:relative;overflow:hidden}.editorial-grid img{width:100%;height:100%;object-fit:cover;transition:.45s}.editorial-grid figure:hover img{transform:scale(1.025)}.editorial-grid .tall{grid-row:span 2}.editorial-grid .wide{grid-column:span 2}.editorial-grid figcaption{position:absolute;left:14px;bottom:12px;background:rgba(16,47,36,.74);backdrop-filter:blur(8px);padding:7px 9px;font-size:9px;letter-spacing:.12em}
+.materials{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.material{border:1px solid var(--line);background:var(--paper2);padding:24px;min-height:260px;display:flex;flex-direction:column;justify-content:space-between}.material-preview{height:110px;border:1px dashed rgba(21,59,43,.28);display:grid;place-items:center;color:var(--green);font-family:Georgia,serif;font-size:34px;background:linear-gradient(135deg,rgba(21,59,43,.03),rgba(181,46,40,.035))}.material h3{font-size:24px;color:var(--green);margin:20px 0 8px}.material p{font-size:12px;line-height:1.8;color:var(--muted)}.material small{font-size:9px;letter-spacing:.15em;color:var(--red)}
+.join{margin-top:36px;border-top:1px solid var(--line);padding-top:28px;display:flex;justify-content:space-between;gap:24px;align-items:center}.join strong{font-size:26px;color:var(--green)}.join p{font-size:12px;line-height:1.8;color:var(--muted);margin:6px 0 0}
+.footer{padding:110px 0 55px;text-align:center;position:relative;overflow:hidden}.footer h2{font-family:Georgia,serif;color:var(--green);font-size:clamp(48px,8vw,100px);line-height:.88;margin:0}.footer h2 span{color:var(--red)}.footer p{margin:28px 0 50px;letter-spacing:.18em;color:var(--muted);font-size:11px}.footer-rule{height:1px;background:var(--line);margin:60px 0 22px}.copyright{font-size:10px;letter-spacing:.14em;color:#939184}
+.reveal{opacity:0;transform:translateY(18px);transition:.65s ease}.reveal.visible{opacity:1;transform:none}
+@media(max-width:980px){.nav{display:none}.hero-grid,.special-grid,.player,.ricette-grid{grid-template-columns:1fr}.hero{min-height:auto}.hero-visual{padding:0}.special-card img{height:auto}.record-wrap{min-height:340px}.editorial-grid{grid-template-columns:1fr 1fr}.editorial-grid .wide{grid-column:span 2}.materials{grid-template-columns:1fr 1fr}.section-head{display:block}.section-note{margin-top:16px}.hero-photo img{aspect-ratio:2.2/1}}
+@media(max-width:620px){.container{width:min(100% - 28px,1180px)}.hero{padding-top:108px}.title{font-size:61px}.section{padding:78px 0}.hero-seal{width:104px;height:104px;font-size:8px}.special-card{padding:14px}.special-badge{left:25px;top:25px}.masonry{columns:1}.materials{grid-template-columns:1fr}.editorial-grid{display:grid;grid-template-columns:1fr;grid-auto-rows:260px}.editorial-grid .wide{grid-column:auto}.editorial-grid .tall{grid-row:auto}.join{display:block}.join .btn{margin-top:16px}.record{width:min(310px,78vw)}.recipe-visual{min-height:330px}.plate{width:220px;height:220px}.plate:before{inset:48px}}
 </style>
 </head>
 <body>
-<header class="header">
- <div class="header-in">
-  <a class="brand" href="#top">PASTA<i>MAN</i></a>
-  <nav class="nav">
-   <a class="nav-item" href="#piazza">Piazza Pasta<span class="tip" data-i18n="tip_piazza">みんなの投稿広場</span></a>
-   <a class="nav-item" href="#musica">Musica<span class="tip" data-i18n="tip_musica">音楽・歌系コンテンツ</span></a>
-   <a class="nav-item" href="#commedia">Commedia<span class="tip" data-i18n="tip_commedia">おもしろ動画</span></a>
-   <a class="nav-item" href="#galleria">La Galleria<span class="tip" data-i18n="tip_galleria">イラスト・写真・作品集</span></a>
-   <a class="nav-item" href="#materiali">Materiali<span class="tip" data-i18n="tip_materiali">素材配布</span></a>
-  </nav>
-  <div class="lang">
-   <select id="langSelect" aria-label="Language">
-    <option value="ja">日本語</option><option value="en">English</option><option value="it">Italiano</option><option value="hi">हिन्दी</option><option value="zh">中文</option><option value="ko">한국어</option>
-   </select>
-  </div>
- </div>
-</header>
-
+<header class="header"><div class="inner"><a class="brand" href="#top">PASTA<i>MAN</i></a><nav class="nav"><a href="#special" data-jp="本日のおすすめ">SPECIALE</a><a href="#piazza" data-jp="みんなの投稿広場">PIAZZA</a><a href="#musica" data-jp="音楽">MUSICA</a><a href="#ricette" data-jp="レシピ">RICETTE</a><a href="#galleria" data-jp="ギャラリー">GALLERIA</a><a href="#materiali" data-jp="素材配布">MATERIALI</a></nav></div></header>
 <main id="top">
-<section class="hero">
- <div class="container hero-grid">
-  <div>
-   <div class="kicker" data-i18n="hero_kicker">Italian Hero Portal / Official Selection</div>
-   <h1 class="title">PASTA<br>MAN<span>Good Pasta, Good People.</span></h1>
-   <p class="lead" data-i18n="hero_lead">パスタマンの投稿、音楽、動画、イラスト、素材をひとつのテーブルに。見る、聴く、楽しむ、つくる。ここはパスタマン公式ポータルです。</p>
-   <div class="specialita-note">— Specialità della casa —</div>
-   <div class="hero-actions"><a class="btn primary" href="#piazza" data-i18n="hero_cta1">投稿を見る</a><a class="btn red" href="#musica" data-i18n="hero_cta2">音楽を聴く</a></div>
-  </div>
-  <div class="hero-visual">
-    <div class="hero-pasta-line" aria-hidden="true"></div>
-    <div class="botanical top-right" aria-hidden="true"><span class="stem"></span><span class="leaf l1"></span><span class="leaf l2"></span><span class="leaf l3"></span><span class="leaf l4"></span></div>
-    <div class="hero-photo"><img src="assets/hero-wide.png" alt="PASTAMAN"></div>
-    <div class="botanical bottom-left" aria-hidden="true"><span class="stem"></span><span class="leaf l1"></span><span class="leaf l2"></span><span class="leaf l3"></span><span class="leaf l4"></span></div>
-    <div class="hero-line" aria-hidden="true"></div>
-    <div class="hero-caption">Good Pasta, Good People.</div>
-   </div>
- </div>
-</section>
-
-<section class="section alt" id="special">
- <div class="container">
-  <div class="section-head"><div><div class="eyebrow">Speciale del Giorno</div><h2 data-i18n="special_title">Today's Special</h2></div><p class="note" data-i18n="special_note">主役はパスタマン。今いちばん見てほしいコンテンツを大きく紹介する“本日のおすすめ”枠です。</p></div>
-  <div class="feature-grid">
-   <div class="feature-visual"><img src="assets/card-pastaman.png" alt="PASTAMAN"></div>
-   <div class="menu-copy">
-    <h3>PASTAMAN</h3><div class="price">Signature Hero — NOT FOR SALE</div>
-    <p data-i18n="special_copy">白、緑、赤。香草とトマトとパスタの世界。その真ん中に、パスタマン。ここから投稿や音楽、動画、イラストへつながっていきます。</p>
-    <div class="tags"><span class="tag">PASTA</span><span class="tag">MUSICA</span><span class="tag">VIDEO</span><span class="tag">ILLUSTRAZIONI</span></div>
-   </div>
-  </div>
- </div>
-</section>
-
-<section class="section" id="piazza">
- <div class="container">
-  <div class="section-head"><div><div class="eyebrow">Piazza Pasta</div><h2 data-i18n="piazza_title">みんなの投稿広場</h2></div><p class="note" data-i18n="piazza_note">パスタマンのイベントで投稿してくれた作品を、種類別に整理して紹介します。Xの投稿URLを追加していく前提の構成です。</p></div>
-  <div class="feed-toolbar">
-   <button class="filter active" data-filter="all" data-i18n="filter_all">すべて</button>
-   <button class="filter" data-filter="musica">Musica</button>
-   <button class="filter" data-filter="commedia">Commedia</button>
-   <button class="filter" data-filter="illustrazioni">Illustrazioni</button>
-   <button class="filter" data-filter="video">Video</button>
-   <button class="filter" data-filter="fotografie">Fotografie</button>
-  </div>
-  <div class="feed-grid" id="feedGrid"></div>
- </div>
-</section>
-
-<section class="section dark" id="musica">
- <div class="container">
-  <div class="section-head"><div><div class="eyebrow">Musica</div><h2 data-i18n="music_title">In Riproduzione</h2></div><p class="note" data-i18n="music_note">主題歌やパスタマン関連曲をここで再生。今は1曲分のプレイヤーを用意し、音源アップ後に差し替えできます。</p></div>
-  <div class="player-wrap">
-   <div class="player-art"><div class="disc"></div></div>
-   <div class="player-panel">
-    <div class="now" data-i18n="now_playing">NOW SERVING ♫</div>
-    <div class="track" id="trackTitle">PASTAMAN Main Theme</div>
-    <div class="track-sub">Tema Principale</div>
-    <div class="track-sub" style="margin-top:6px">Composer: ブランシェスカ</div>
-    <div class="controls">
-      <button class="control" aria-label="Previous track">⏮</button>
-      <button class="control play" id="playBtn" aria-label="Play">▶</button>
-      <button class="control" aria-label="Next track">⏭</button>
-      <div class="volume-wrap"><span class="volume-icon" id="volumeIcon">🔊</span><input class="volume-slider" id="volumeSlider" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="Volume"></div>
-    </div>
-    <div class="progress" id="progressTrack"><span id="progressBar"></span></div>
-    <div class="time-row"><span id="currentTime">0:00</span><span id="duration">0:00</span></div>
-    <audio id="audio" preload="metadata"><source src="audio/main-theme.mp3" type="audio/mpeg"></audio>
-   </div>
-  </div>
- </div>
-</section>
-
-<section class="section alt" id="commedia">
- <div class="container">
-  <div class="section-head"><div><div class="eyebrow">Commedia</div><h2 data-i18n="comedy_title">おもしろ動画</h2></div><p class="note" data-i18n="comedy_note">ネタ動画、ショート、格ゲー風、パスタマンらしい変な映像はこちら。Piazza Pastaと連動して追加できます。</p></div>
-  <div class="feed-grid" id="comedyGrid"></div>
- </div>
-</section>
-
-<section class="section dark" id="galleria">
- <div class="container">
-  <div class="section-head"><div><div class="eyebrow">La Galleria</div><h2 data-i18n="gallery_title">作品ギャラリー</h2></div><p class="note" data-i18n="gallery_note">イラスト、写真、ファンアート、公式ビジュアルを料理雑誌のような余白で展示します。</p></div>
-  <div class="gallery-grid">
-   <img class="tall" src="assets/card-pastaman.png" alt="PASTAMAN">
-   <img src="assets/card-02.png" alt="Pasta Hero">
-   <img src="assets/card-03.png" alt="Pasta Hero">
-   <img class="wide" src="assets/hero-wide.png" alt="PASTAMAN">
-   <img src="assets/card-04.png" alt="Pasta Hero">
-   <img src="assets/card-05.png" alt="Pasta Hero">
-  </div>
- </div>
-</section>
-
-<section class="section" id="materiali">
- <div class="container">
-  <div class="section-head"><div><div class="eyebrow">Materiali</div><h2 data-i18n="materials_title">素材配布</h2></div><p class="note" data-i18n="materials_note">配布素材は、利用規約への同意後にダウンロードボタンを表示します。規約バージョン更新時は再同意させる設計です。</p></div>
-  <div class="material-grid">
-   <article class="material-card"><h3>Logo Pack</h3><p data-i18n="mat_logo">ロゴPNG・透過素材</p><button class="btn primary material-btn" data-pack="logo">Scarica</button></article>
-   <article class="material-card"><h3>Visual Pack</h3><p data-i18n="mat_visual">パスタマン立ち絵・ビジュアル素材</p><button class="btn primary material-btn" data-pack="visual">Scarica</button></article>
-   <article class="material-card"><h3>SNS Kit</h3><p data-i18n="mat_sns">投稿・イベント用のSNS素材</p><button class="btn primary material-btn" data-pack="sns">Scarica</button></article>
-  </div>
- </div>
-</section>
-
-<footer class="footer"><div class="container"><h2>GOOD PASTA.<br><span>GOOD PEOPLE.</span></h2><p>PASTAMAN — OFFICIAL PORTAL</p></div></footer>
+<section class="hero"><div class="container hero-grid"><div class="reveal"><div class="kicker">Italian Hero Portal / Official Selection</div><h1 class="title">PASTA<br>MAN<span>Good Pasta, Good People.</span></h1><p class="hero-copy">パスタマンの投稿、音楽、レシピ、映像、イラスト、素材をひとつのテーブルに。今日もどこかで、麺は茹でられている。</p><div class="hero-actions"><a class="btn primary" href="#special">Today's Special</a><a class="btn red" href="#piazza">Enter Piazza</a></div></div><div class="hero-visual reveal"><div class="sprig one"><i class="stem"></i><i class="leaf l1"></i><i class="leaf l2"></i><i class="leaf l3"></i><i class="leaf l4"></i></div><div class="hero-photo"><img src="assets/hero-wide.png" alt="パスタマン"></div><div class="sprig two"><i class="stem"></i><i class="leaf l1"></i><i class="leaf l2"></i><i class="leaf l3"></i><i class="leaf l4"></i></div><div class="hero-seal">PASTA MAN<br>OFFICIAL<br>SELECTION</div></div></div></section>
+<section class="section" id="special"><div class="container"><div class="section-head reveal"><div><div class="section-no">01 / Today's Special</div><h2>Il piatto del giorno.</h2></div><p class="section-note">その日いちばん見てほしいものを、店先のおすすめ料理みたいに大きく。更新するだけでサイト全体が“生きている”ように見える場所。</p></div><div class="special-grid"><div class="special-card reveal"><span class="special-badge">TODAY'S SPECIAL</span><img src="assets/card-pastaman.png" alt="本日のパスタマン"></div><div class="reveal"><div class="eyebrow">Signature Hero / No.01</div><div class="menu-title"><h3>PASTAMAN</h3></div><div class="copy">白を基調としたボディ。トマトレッドのマント。仕上げには、惜しみなくパスタを。<br><br>正義のために現れたのか。パスタのために現れたのか。答えはまだ誰も知らない。</div><div class="tags"><span class="tag">PASTA</span><span class="tag">TOMATO RED</span><span class="tag">OLIVE BLACK</span><span class="tag">JUSTICE q.b.</span></div></div></div></div></section>
+<section class="section piazza" id="piazza"><div class="container"><div class="section-head reveal"><div><div class="section-no">02 / Piazza Pasta</div><h2>La piazza di tutti.</h2></div><p class="section-note">みんなのパスタマンが集まる広場。均一なカードではなく、雑誌や街角の掲示板のように少し不揃いに。</p></div><div class="filter-row reveal"><button class="filter-btn active" data-filter="all">TUTTO / すべて</button><button class="filter-btn" data-filter="hero">EROI</button><button class="filter-btn" data-filter="illust">ILLUSTRAZIONI</button><button class="filter-btn" data-filter="photo">FOTOGRAFIE</button></div><div class="masonry" id="postGrid">
+<article class="post-card reveal" data-cat="hero"><img src="assets/card-pastaman.png" alt="Pastaman"><div class="post-meta"><small>EROI</small><strong>PASTAMAN</strong><p>本日の主役。Good Pasta, Good People.</p></div></article>
+<article class="post-card reveal" data-cat="illust"><img src="assets/card-02.png" alt="Pasta hero"><div class="post-meta"><small>ILLUSTRAZIONI</small><strong>Pasta Hero 02</strong><p>街角に現れた、もうひと皿のヒーロー。</p></div></article>
+<article class="post-card reveal" data-cat="photo"><img src="assets/hero-wide.png" alt="Pastaman wide"><div class="post-meta"><small>FOTOGRAFIE</small><strong>Hero Moment</strong><p>余白のある一枚。雑誌の見開きのように。</p></div></article>
+<article class="post-card reveal" data-cat="hero"><img src="assets/card-03.png" alt="Pasta hero"><div class="post-meta"><small>EROI</small><strong>Pasta Hero 03</strong><p>パスタマンは、ひとりとは限らない。</p></div></article>
+<article class="post-card reveal" data-cat="illust"><img src="assets/card-04.png" alt="Pasta hero"><div class="post-meta"><small>ILLUSTRAZIONI</small><strong>Pasta Hero 04</strong><p>赤、白、緑。世界観はそのままに。</p></div></article>
+<article class="post-card reveal" data-cat="photo"><img src="assets/card-05.png" alt="Pasta hero"><div class="post-meta"><small>FOTOGRAFIE</small><strong>Pasta Hero 05</strong><p>今日もどこかで、パスタマン。</p></div></article>
+</div><div class="join reveal"><div><strong>La tua pasta, qui.</strong><p>#パスタマンHP を付けて投稿すると、パスタマン公式HPで紹介されるかもしれません。</p></div><a class="btn red" href="#top">#パスタマンHP</a></div></div></section>
+<section class="section musica" id="musica"><div class="container"><div class="section-head reveal"><div><div class="section-no">03 / Musica</div><h2>Suona, Pastaman.</h2></div><p class="section-note">ただの再生ボタンではなく、小さなレコードプレイヤー。音楽が鳴ると皿――ではなく、レコードが回ります。</p></div><div class="player"><div class="record-wrap reveal"><div class="record" id="record"></div></div><div class="reveal"><div class="track-eyebrow">Tema Principale</div><div class="track-title">PASTAMAN<br>Main Theme</div><div class="composer">Composer: ブランシェスカ</div><audio id="audio" preload="metadata" src="audio/main-theme.mp3"></audio><div class="transport"><button class="play" id="playBtn" aria-label="再生">▶</button><div class="time" id="timeLabel">00:00 / 00:00</div></div><input class="range" id="seek" type="range" min="0" max="100" value="0" aria-label="再生位置"><div class="volume-row"><span>VOLUME</span><input class="range" id="volume" type="range" min="0" max="1" step="0.01" value="0.8" aria-label="音量"></div><div class="music-note" id="musicNote">PASTAMAN RECORDS / MAIN THEME</div></div></div></div></section>
+<section class="section" id="ricette"><div class="container"><div class="section-head reveal"><div><div class="section-no">04 / Ricette</div><h2>Ricette di casa.</h2></div><p class="section-note">パスタマン世界のレシピ置き場。料理として読めて、SNS企画にもそのままつながる構成。</p></div><div class="ricette-grid"><article class="recipe-hero reveal"><div class="recipe-visual"><div class="plate"></div></div><h3 class="recipe-title">ルアリエさんちの<br>キャベツのペペロンチーノ</h3><div class="recipe-meta"><span class="tag">15 MIN</span><span class="tag">EASY</span><span class="tag">PEPERONCINO</span></div></article><div class="recipe-side"><div class="recipe-block reveal"><h3>Ingredienti</h3><ul><li>パスタ</li><li>キャベツ</li><li>コンビーフ</li><li>にんにく・唐辛子・オリーブオイル</li></ul></div><div class="recipe-block reveal"><h3>Come si fa</h3><p>いつものペペロンチーノを作る要領で香りを立て、キャベツとコンビーフを加えて仕上げます。簡単で、しっかり満足。</p></div><div class="recipe-block reveal"><h3>Parola d'ordine</h3><p><strong>「パスタトーレ！」</strong><br>#パスタマン と #パスタマンHP を付けて、みんなのパスタも見せてください。</p></div></div></div></div></section>
+<section class="section editorial" id="galleria"><div class="container"><div class="section-head reveal"><div><div class="section-no">05 / La Galleria</div><h2>Hero in every moment.</h2></div><p class="section-note">正方形に揃えない。強い写真と余白を混ぜ、料理雑誌やファッション誌みたいに見せる。</p></div><div class="editorial-grid"><figure class="tall reveal"><img src="assets/card-pastaman.png" alt="Pastaman"><figcaption>PASTAMAN / SIGNATURE</figcaption></figure><figure class="reveal"><img src="assets/card-02.png" alt="Hero"><figcaption>HERO 02</figcaption></figure><figure class="reveal"><img src="assets/card-03.png" alt="Hero"><figcaption>HERO 03</figcaption></figure><figure class="wide reveal"><img src="assets/hero-wide.png" alt="Pastaman wide"><figcaption>GOOD PASTA, GOOD PEOPLE.</figcaption></figure><figure class="reveal"><img src="assets/card-04.png" alt="Hero"><figcaption>HERO 04</figcaption></figure><figure class="reveal"><img src="assets/card-05.png" alt="Hero"><figcaption>HERO 05</figcaption></figure></div></div></section>
+<section class="section" id="materiali"><div class="container"><div class="section-head reveal"><div><div class="section-no">06 / Materiali</div><h2>Prendi e crea.</h2></div><p class="section-note">ロゴ、ビジュアル、SNS素材。文字だけの配布欄にせず、何が入っているか一目で分かる小さなショーケースに。</p></div><div class="materials"><article class="material reveal"><div><div class="material-preview">PastaMan</div><h3>Logo Pack</h3><p>ロゴ、透過PNG、基本バリエーション。</p></div><small>PNG / TRANSPARENT</small></article><article class="material reveal"><div><div class="material-preview">VISUAL</div><h3>Visual Pack</h3><p>投稿・動画・告知に使える公式ビジュアル。</p></div><small>FREE MATERIAL</small></article><article class="material reveal"><div><div class="material-preview">#PASTA</div><h3>SNS Kit</h3><p>サムネイルやSNS投稿用テンプレート。</p></div><small>SOCIAL / CREATOR</small></article></div></div></section>
+<footer class="footer"><div class="container"><h2>GOOD PASTA.<br><span>GOOD PEOPLE.</span></h2><p>PASTAMAN — ITALIAN HERO PORTAL</p><a class="btn primary" href="#top">BACK TO TOP</a><div class="footer-rule"></div><div class="copyright">PASTAMAN / OFFICIAL SELECTION</div></div></footer>
 </main>
-
-<div class="modal" id="termsModal" aria-hidden="true">
- <div class="modal-card">
-  <h3>Condizioni d'Uso</h3><div class="sub" data-i18n="terms_sub">素材利用規約</div>
-  <div class="terms" data-i18n="terms_body">配布素材は、パスタマン関連の創作・投稿・イベント参加など、良識の範囲で利用してください。素材そのものの再配布、販売、権利者を誤認させる利用、公序良俗に反する利用は禁止します。詳細な正式規約は後から差し替え可能です。</div>
-  <label class="agree"><input type="checkbox" id="agreeCheck"><span data-i18n="terms_agree">規約を確認し、内容に同意します。</span></label>
-  <div class="modal-actions"><button class="btn" id="cancelTerms" data-i18n="cancel">閉じる</button><button class="btn primary" id="acceptTerms" disabled>Accetto</button></div>
- </div>
-</div>
-
 <script>
-const posts=[
- {type:'musica',author:'PASTAMAN EVENT',title:'Song Post',text:'Xの歌・音楽投稿をここに追加できます。',url:'#'},
- {type:'commedia',author:'PASTAMAN EVENT',title:'Funny Video',text:'おもしろ動画やショート投稿をここに追加できます。',url:'#'},
- {type:'illustrazioni',author:'PASTAMAN EVENT',title:'Illustration',text:'イラスト投稿やファンアートをここに追加できます。',url:'#'},
- {type:'video',author:'PASTAMAN EVENT',title:'Hero Video',text:'格ゲー風・戦闘・ヒーロー映像など。',url:'#'},
- {type:'fotografie',author:'PASTAMAN EVENT',title:'Photo',text:'写真系の投稿をここに追加できます。',url:'#'},
- {type:'commedia',author:'PASTAMAN EVENT',title:'Comedy Clip',text:'パスタマンらしいネタ投稿用のカードです。',url:'#'}
-];
-
-const i18n={
- ja:{tip_piazza:'みんなの投稿広場',tip_musica:'音楽・歌系コンテンツ',tip_commedia:'おもしろ動画',tip_galleria:'イラスト・写真・作品集',tip_materiali:'素材配布',hero_kicker:'Italian Hero Portal / Official Selection',hero_lead:'パスタマンの投稿、音楽、動画、イラスト、素材をひとつのテーブルに。見る、聴く、楽しむ、つくる。ここはパスタマン公式ポータルです。',hero_cta1:'投稿を見る',hero_cta2:'音楽を聴く',special_title:"Today's Special",special_note:'主役はパスタマン。今いちばん見てほしいコンテンツを大きく紹介する“本日のおすすめ”枠です。',special_copy:'白、緑、赤。香草とトマトとパスタの世界。その真ん中に、パスタマン。ここから投稿や音楽、動画、イラストへつながっていきます。',piazza_title:'みんなの投稿広場',piazza_note:'パスタマンのイベントで投稿してくれた作品を、種類別に整理して紹介します。Xの投稿URLを追加していく前提の構成です。',filter_all:'すべて',music_title:'再生中',music_note:'主題歌やパスタマン関連曲をここで再生。今は1曲分のプレイヤーを用意し、音源アップ後に差し替えできます。',now_playing:'NOW SERVING ♫',track_sub:'Tema Principale',player_note:'',comedy_title:'おもしろ動画',comedy_note:'ネタ動画、ショート、格ゲー風、パスタマンらしい変な映像はこちら。Piazza Pastaと連動して追加できます。',gallery_title:'作品ギャラリー',gallery_note:'イラスト、写真、ファンアート、公式ビジュアルを料理雑誌のような余白で展示します。',materials_title:'素材配布',materials_note:'配布素材は、利用規約への同意後にダウンロードボタンを表示します。規約バージョン更新時は再同意させる設計です。',mat_logo:'ロゴPNG・透過素材',mat_visual:'パスタマン立ち絵・ビジュアル素材',mat_sns:'投稿・イベント用のSNS素材',terms_sub:'素材利用規約',terms_body:'配布素材は、パスタマン関連の創作・投稿・イベント参加など、良識の範囲で利用してください。素材そのものの再配布、販売、権利者を誤認させる利用、公序良俗に反する利用は禁止します。詳細な正式規約は後から差し替え可能です。',terms_agree:'規約を確認し、内容に同意します。',cancel:'閉じる'},
- en:{tip_piazza:'Community posts',tip_musica:'Music & songs',tip_commedia:'Comedy videos',tip_galleria:'Illustrations, photos & works',tip_materiali:'Download materials',hero_kicker:'Italian Hero Portal / Official Selection',hero_lead:'Posts, music, videos, illustrations and materials from the world of PASTAMAN — all served at one table.',hero_cta1:'View posts',hero_cta2:'Listen to music',special_title:"Today's Special",special_note:'PASTAMAN stays center stage. This area highlights the content we most want you to see right now.',special_copy:'White, green and red. Herbs, tomato and pasta. At the center of it all: PASTAMAN.',piazza_title:'Community Posts',piazza_note:'Posts from PASTAMAN events are organized by category. X post links can be added here over time.',filter_all:'All',music_title:'Now Playing',music_note:'Play the main theme and other PASTAMAN tracks here. One track slot is ready now.',now_playing:'NOW SERVING ♫',track_sub:'Tema Principale',player_note:'',comedy_title:'Comedy Videos',comedy_note:'Funny clips, shorts, game-style videos and everything strangely PASTAMAN.',gallery_title:'Gallery',gallery_note:'Illustrations, photos, fan art and official visuals presented like an editorial spread.',materials_title:'Materials',materials_note:'Download buttons appear only after the user accepts the terms of use.',mat_logo:'Logo PNG and transparent assets',mat_visual:'PASTAMAN character visuals',mat_sns:'SNS and event assets',terms_sub:'Terms of Use',terms_body:'Use the distributed assets responsibly for PASTAMAN-related creative works, posts and event participation. Redistribution, resale, misleading rights claims and unlawful or harmful use are prohibited.',terms_agree:'I have read and agree to the terms.',cancel:'Close'},
- it:{tip_piazza:'Post della community',tip_musica:'Musica e canzoni',tip_commedia:'Video comici',tip_galleria:'Illustrazioni, foto e opere',tip_materiali:'Materiali da scaricare',hero_kicker:'Portale dell’eroe italiano / Selezione ufficiale',hero_lead:'Post, musica, video, illustrazioni e materiali del mondo di PASTAMAN, tutti serviti allo stesso tavolo.',hero_cta1:'Vedi i post',hero_cta2:'Ascolta la musica',special_title:'Speciale del Giorno',special_note:'PASTAMAN resta sempre al centro. Qui mostriamo il contenuto che vogliamo mettere più in evidenza.',special_copy:'Bianco, verde e rosso. Erbe, pomodoro e pasta. Al centro di tutto: PASTAMAN.',piazza_title:'Piazza della community',piazza_note:'I post degli eventi PASTAMAN sono organizzati per categoria. I link dei post su X possono essere aggiunti nel tempo.',filter_all:'Tutti',music_title:'In Riproduzione',music_note:'Qui puoi ascoltare il tema principale e gli altri brani di PASTAMAN.',now_playing:'ORA IN SERVIZIO ♫',track_sub:'Tema Principale',player_note:'',comedy_title:'Video Comici',comedy_note:'Clip divertenti, short, video in stile videogame e tutto ciò che è stranamente PASTAMAN.',gallery_title:'La Galleria',gallery_note:'Illustrazioni, foto, fan art e visual ufficiali in stile editoriale.',materials_title:'Materiali',materials_note:'I pulsanti di download appaiono solo dopo aver accettato le condizioni d’uso.',mat_logo:'Logo PNG e file trasparenti',mat_visual:'Visual e immagini di PASTAMAN',mat_sns:'Materiali per social ed eventi',terms_sub:"Condizioni d'Uso",terms_body:'Usa i materiali in modo responsabile per opere creative, post ed eventi collegati a PASTAMAN. Sono vietati redistribuzione, vendita e usi illeciti o ingannevoli.',terms_agree:'Ho letto e accetto le condizioni.',cancel:'Chiudi'},
- hi:{tip_piazza:'समुदाय पोस्ट',tip_musica:'संगीत और गीत',tip_commedia:'मज़ेदार वीडियो',tip_galleria:'चित्र, फ़ोटो और रचनाएँ',tip_materiali:'डाउनलोड सामग्री',hero_kicker:'Italian Hero Portal / Official Selection',hero_lead:'PASTAMAN की पोस्ट, संगीत, वीडियो, चित्र और सामग्री — सब एक ही जगह।',hero_cta1:'पोस्ट देखें',hero_cta2:'संगीत सुनें',special_title:"Today's Special",special_note:'PASTAMAN मुख्य नायक है। यहाँ सबसे खास सामग्री को बड़े रूप में दिखाया जाता है।',special_copy:'सफेद, हरा और लाल। जड़ी-बूटियाँ, टमाटर और पास्ता। बीच में है PASTAMAN।',piazza_title:'समुदाय पोस्ट',piazza_note:'PASTAMAN कार्यक्रमों की पोस्ट श्रेणी के अनुसार दिखाई जाती हैं। X पोस्ट लिंक बाद में जोड़े जा सकते हैं।',filter_all:'सभी',music_title:'अभी चल रहा है',music_note:'मुख्य थीम और PASTAMAN से जुड़ा संगीत यहाँ चलेगा।',now_playing:'NOW SERVING ♫',track_sub:'मुख्य थीम',player_note:'',comedy_title:'मज़ेदार वीडियो',comedy_note:'कॉमेडी क्लिप, शॉर्ट्स और PASTAMAN शैली के वीडियो।',gallery_title:'गैलरी',gallery_note:'चित्र, फ़ोटो, फैन आर्ट और आधिकारिक विज़ुअल।',materials_title:'सामग्री',materials_note:'उपयोग की शर्तों से सहमत होने के बाद डाउनलोड बटन दिखेंगे।',mat_logo:'लोगो PNG और पारदर्शी फ़ाइलें',mat_visual:'PASTAMAN विज़ुअल सामग्री',mat_sns:'SNS और इवेंट सामग्री',terms_sub:'उपयोग की शर्तें',terms_body:'सामग्री का जिम्मेदारी से उपयोग करें। पुनर्वितरण, बिक्री और भ्रामक या अवैध उपयोग निषिद्ध है।',terms_agree:'मैंने शर्तें पढ़ ली हैं और सहमत हूँ।',cancel:'बंद करें'},
- zh:{tip_piazza:'大家的投稿广场',tip_musica:'音乐与歌曲',tip_commedia:'搞笑视频',tip_galleria:'插画、照片与作品',tip_materiali:'素材下载',hero_kicker:'Italian Hero Portal / Official Selection',hero_lead:'把 PASTAMAN 的投稿、音乐、视频、插画和素材放在同一张桌上。',hero_cta1:'查看投稿',hero_cta2:'播放音乐',special_title:"Today's Special",special_note:'PASTAMAN 始终是主角。这里会重点展示最想推荐的内容。',special_copy:'白、绿、红。香草、番茄与意面。中心就是 PASTAMAN。',piazza_title:'大家的投稿广场',piazza_note:'将 PASTAMAN 活动投稿按类别整理展示，并可持续追加 X 帖子链接。',filter_all:'全部',music_title:'正在播放',music_note:'主題曲及其他 PASTAMAN 音乐会在这里播放。',now_playing:'NOW SERVING ♫',track_sub:'主題曲',player_note:'',comedy_title:'搞笑视频',comedy_note:'搞笑短片、短视频、格斗游戏风视频等。',gallery_title:'作品画廊',gallery_note:'展示插画、照片、同人作品与官方视觉。',materials_title:'素材下载',materials_note:'同意使用条款后才会显示下载按钮。',mat_logo:'Logo PNG 与透明素材',mat_visual:'PASTAMAN 立绘与视觉素材',mat_sns:'SNS 与活动素材',terms_sub:'使用条款',terms_body:'请将素材用于 PASTAMAN 相关创作、投稿和活动。禁止再发布、销售、误导性权利声明及违法使用。',terms_agree:'我已阅读并同意使用条款。',cancel:'关闭'},
- ko:{tip_piazza:'모두의 게시물 광장',tip_musica:'음악·노래 콘텐츠',tip_commedia:'재미있는 영상',tip_galleria:'일러스트·사진·작품',tip_materiali:'소재 배포',hero_kicker:'Italian Hero Portal / Official Selection',hero_lead:'PASTAMAN의 게시물, 음악, 영상, 일러스트, 소재를 한곳에서 즐길 수 있는 공식 포털입니다.',hero_cta1:'게시물 보기',hero_cta2:'음악 듣기',special_title:"Today's Special",special_note:'주인공은 언제나 PASTAMAN. 지금 가장 보여주고 싶은 콘텐츠를 크게 소개합니다.',special_copy:'화이트, 그린, 레드. 허브와 토마토, 파스타의 세계. 그 중심에는 PASTAMAN.',piazza_title:'모두의 게시물 광장',piazza_note:'PASTAMAN 이벤트 참가자들의 게시물을 종류별로 정리해 소개합니다. X 게시물 링크를 계속 추가할 수 있습니다.',filter_all:'전체',music_title:'재생 중',music_note:'주제가와 PASTAMAN 관련 음악을 이곳에서 재생합니다.',now_playing:'NOW SERVING ♫',track_sub:'메인 테마',player_note:'',comedy_title:'재미있는 영상',comedy_note:'코미디, 쇼츠, 격투게임풍 영상 등 PASTAMAN다운 재미있는 영상.',gallery_title:'작품 갤러리',gallery_note:'일러스트, 사진, 팬아트, 공식 비주얼을 전시합니다.',materials_title:'소재 배포',materials_note:'이용약관 동의 후 다운로드 버튼이 표시됩니다.',mat_logo:'로고 PNG·투명 소재',mat_visual:'PASTAMAN 캐릭터 비주얼',mat_sns:'SNS·이벤트용 소재',terms_sub:'이용약관',terms_body:'배포 소재는 PASTAMAN 관련 창작, 게시물, 이벤트 참여 등에 책임감 있게 사용해 주세요. 재배포, 판매, 권리 오인 유도, 불법 사용은 금지합니다.',terms_agree:'약관을 확인했고 동의합니다.',cancel:'닫기'}
-};
-
-function setLang(lang){
- localStorage.setItem('pastamanLang',lang);
- document.documentElement.lang=lang;
- document.querySelectorAll('[data-i18n]').forEach(el=>{const k=el.dataset.i18n;if(i18n[lang]?.[k])el.textContent=i18n[lang][k]});
-}
-const saved=localStorage.getItem('pastamanLang');
-const browser=(navigator.language||'ja').slice(0,2);
-const initial=saved||(['ja','en','it','hi','zh','ko'].includes(browser)?browser:'en');
-document.getElementById('langSelect').value=initial;setLang(initial);
-document.getElementById('langSelect').addEventListener('change',e=>setLang(e.target.value));
-
-function renderPosts(filter='all',target='feedGrid'){
- const box=document.getElementById(target);if(!box)return;
- const data=posts.filter(p=>filter==='all'||p.type===filter);
- box.innerHTML=data.map(p=>`<article class="post-card"><div><div class="post-meta"><span class="post-type">${p.type}</span><span class="post-author">@ ${p.author}</span></div><h3>${p.title}</h3><p>${p.text}</p></div><a class="post-link" href="${p.url}" target="_blank" rel="noopener">VIEW ON X ↗</a></article>`).join('');
-}
-renderPosts();renderPosts('commedia','comedyGrid');
-document.querySelectorAll('.filter').forEach(b=>b.addEventListener('click',()=>{document.querySelectorAll('.filter').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderPosts(b.dataset.filter)}));
-
-const audio=document.getElementById('audio'),
-      playBtn=document.getElementById('playBtn'),
-      progress=document.getElementById('progressBar'),
-      progressTrack=document.getElementById('progressTrack'),
-      volumeSlider=document.getElementById('volumeSlider'),
-      volumeIcon=document.getElementById('volumeIcon'),
-      currentTimeEl=document.getElementById('currentTime'),
-      durationEl=document.getElementById('duration');
-
-function fmtTime(sec){if(!Number.isFinite(sec))return '0:00';const m=Math.floor(sec/60),s=Math.floor(sec%60);return m+':'+String(s).padStart(2,'0')}
-audio.volume=Number(volumeSlider.value);
-playBtn.addEventListener('click',async()=>{try{if(audio.paused){await audio.play();playBtn.textContent='❚❚'}else{audio.pause();playBtn.textContent='▶'}}catch(e){playBtn.textContent='▶'}})
-audio.addEventListener('loadedmetadata',()=>durationEl.textContent=fmtTime(audio.duration));
-audio.addEventListener('timeupdate',()=>{progress.style.width=audio.duration?((audio.currentTime/audio.duration)*100)+'%':'0%';currentTimeEl.textContent=fmtTime(audio.currentTime);durationEl.textContent=fmtTime(audio.duration)});
-audio.addEventListener('ended',()=>playBtn.textContent='▶');
-volumeSlider.addEventListener('input',()=>{audio.volume=Number(volumeSlider.value);volumeIcon.textContent=audio.volume===0?'🔇':audio.volume<.5?'🔉':'🔊'});
-volumeIcon.addEventListener('click',()=>{if(audio.volume>0){audio.dataset.prevVolume=audio.volume;audio.volume=0;volumeSlider.value=0;volumeIcon.textContent='🔇'}else{const v=Number(audio.dataset.prevVolume||.8);audio.volume=v;volumeSlider.value=v;volumeIcon.textContent=v<.5?'🔉':'🔊'}});
-progressTrack.addEventListener('click',e=>{if(!audio.duration)return;const r=progressTrack.getBoundingClientRect();audio.currentTime=((e.clientX-r.left)/r.width)*audio.duration});
-
-const TERMS_VERSION='1.0';let pendingPack=null;
-const modal=document.getElementById('termsModal'),agree=document.getElementById('agreeCheck'),accept=document.getElementById('acceptTerms');
-document.querySelectorAll('.material-btn').forEach(btn=>btn.addEventListener('click',()=>{pendingPack=btn.dataset.pack;if(localStorage.getItem('pastamanTerms')===TERMS_VERSION){showDownload(pendingPack)}else{modal.classList.add('show');agree.checked=false;accept.disabled=true}}));
-agree.addEventListener('change',()=>accept.disabled=!agree.checked);
-document.getElementById('cancelTerms').addEventListener('click',()=>modal.classList.remove('show'));
-accept.addEventListener('click',()=>{localStorage.setItem('pastamanTerms',TERMS_VERSION);modal.classList.remove('show');showDownload(pendingPack)});
-function showDownload(pack){alert('同意済みです。正式な配布ZIPをアップすると、ここから '+pack+' をダウンロードできるようになります。')}
+const reveals=document.querySelectorAll('.reveal');const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')})},{threshold:.08});reveals.forEach(el=>io.observe(el));
+const fbs=[...document.querySelectorAll('.filter-btn')],posts=[...document.querySelectorAll('.post-card')];fbs.forEach(b=>b.addEventListener('click',()=>{fbs.forEach(x=>x.classList.remove('active'));b.classList.add('active');const f=b.dataset.filter;posts.forEach(p=>p.style.display=(f==='all'||p.dataset.cat===f)?'inline-block':'none')}));
+const audio=document.getElementById('audio'),playBtn=document.getElementById('playBtn'),seek=document.getElementById('seek'),volume=document.getElementById('volume'),record=document.getElementById('record'),timeLabel=document.getElementById('timeLabel'),musicNote=document.getElementById('musicNote');
+const fmt=s=>{if(!isFinite(s))return'00:00';const m=Math.floor(s/60),ss=Math.floor(s%60);return`${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`};audio.volume=.8;
+playBtn.addEventListener('click',async()=>{try{if(audio.paused){await audio.play();playBtn.textContent='Ⅱ';record.classList.add('playing');musicNote.textContent='再生中 — Buon ascolto.'}else{audio.pause();playBtn.textContent='▶';record.classList.remove('playing')}}catch(e){musicNote.textContent='音源がまだセットされていません。'}});
+audio.addEventListener('timeupdate',()=>{seek.value=audio.duration?audio.currentTime/audio.duration*100:0;timeLabel.textContent=`${fmt(audio.currentTime)} / ${fmt(audio.duration)}`});audio.addEventListener('loadedmetadata',()=>timeLabel.textContent=`00:00 / ${fmt(audio.duration)}`);audio.addEventListener('ended',()=>{playBtn.textContent='▶';record.classList.remove('playing')});seek.addEventListener('input',()=>{if(audio.duration)audio.currentTime=seek.value/100*audio.duration});volume.addEventListener('input',()=>audio.volume=volume.value);
 </script>
 </body>
 </html>
