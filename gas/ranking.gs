@@ -8,8 +8,23 @@ const SHEET_NAME = 'ranking';
 const TOP_N = 50;
 const MAX_SCORE = 50000000;
 
+// スプレッドシートから開いたスクリプトならそのシートを使う。
+// script.google.com で単体作成したスクリプトなら、初回に「パスタマン ランキング」を自動で作って覚える。
+function book_() {
+  const active = SpreadsheetApp.getActiveSpreadsheet();
+  if (active) return active;
+  const props = PropertiesService.getScriptProperties();
+  const id = props.getProperty('SHEET_ID');
+  if (id) {
+    try { return SpreadsheetApp.openById(id); } catch (e) { /* 消されていたら作り直す */ }
+  }
+  const ss = SpreadsheetApp.create('パスタマン ランキング');
+  props.setProperty('SHEET_ID', ss.getId());
+  return ss;
+}
+
 function sheet_() {
-  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const ss = book_();
   let sh = ss.getSheetByName(SHEET_NAME);
   if (!sh) {
     sh = ss.insertSheet(SHEET_NAME);
