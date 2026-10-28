@@ -267,11 +267,11 @@ function destroy(i,col){
 }
 // mussel: blast radius, chains through queue
 function explode(i){
-  const cx=i%COLS,cy=Math.floor(i/COLS),R=3.6;const [x,y]=cellXY(i);
+  const cx=i%COLS,cy=Math.floor(i/COLS),R=6.2;const [x,y]=cellXY(i);
   booms.push({x,y,life:.5,max:.5});
-  for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++){const d=Math.hypot(dx,dy);if(d>R||d===0)continue;
+  for(let dy=-7;dy<=7;dy++)for(let dx=-7;dx<=7;dx++){const d=Math.hypot(dx,dy);if(d>R||d===0)continue;
     const c=cx+dx,r=cy+dy;if(c<0||c>=COLS||r<0||r>=ROWS)continue;const j=r*COLS+c;
-    if(isBrk(grid[j])) queue.push({i:j,at:t+d*.035,col:'#ff8a3d'});}
+    if(isBrk(grid[j])&&grid[j]!==HARD) queue.push({i:j,at:t+d*.03,col:'#ff8a3d'});}
   burst(x,y,'#ff8a3d',30,260);burst(x,y,'#fff4e0',12,180);
   shake=Math.min(shake+6,14); flash=Math.max(flash,.3); flashCol='#ff8a3d';
   if(boomSnd<=0){noise(.45,.3);tone(70,.3,'sine',.2);boomSnd=.08;}
@@ -299,7 +299,16 @@ function trigger(type,x,y,ball){
   else if(type==='mentai'){ cloneT=Math.min(30,Math.max(cloneT,0)+18); bigText('分身パスタマン!','#ff8fa3',1,30); arp(587); flash=.3; flashCol='#ff8fa3'; burst(W-px,PY,'#ff8fa3',30,200);}
 }
 function special(){
-  if(gauge<GMAX||!running||clearT>0) return;
+  if(!running||clearT>0) return;
+  if(gauge<GMAX){ // partial: a few balls, scaled by the gauge
+    const n=Math.floor(gauge/GMAX*40); if(n<1){ tone(150,.08,'square',.04); return; }
+    gauge=0; storm=.45; if(onPad) onPad=false;
+    for(let k=0;k<n;k++) addBall(px+(Math.random()-.5)*pw*.6,PY-6,-Math.PI/2+(Math.random()-.5)*1.4);
+    if(cloneT>0) for(let k=0;k<Math.ceil(n/2);k++) addBall(W-px+(Math.random()-.5)*pw*.6,PY-6,-Math.PI/2+(Math.random()-.5)*1.4);
+    popText('+'+n,px,PY-24,'#f5c542'); burst(px,PY,'#f5c542',14,160); shake=Math.min(shake+3,8);
+    [0,4,7].forEach((st,i)=>tone(440*Math.pow(2,st/12),.1,'triangle',.07,i*.04));
+    return;
+  }
   gauge=0; storm=1.4; if(onPad) onPad=false;
   for(let k=0;k<120;k++) addBall(px+(Math.random()-.5)*pw,PY-6,-Math.PI/2+(Math.random()-.5)*2.3);
   if(cloneT>0) for(let k=0;k<60;k++) addBall(W-px+(Math.random()-.5)*pw,PY-6,-Math.PI/2+(Math.random()-.5)*2.3);
@@ -371,6 +380,7 @@ function update(dt){
     if(lives<=0){gameOver();} else {onPad=true;bigText('おかわり！','#fff4e0',1,32);tone(196,.25,'sawtooth',.06);}
   }
   const g=document.getElementById('sp'); g.style.setProperty('--g',gauge/GMAX); g.classList.toggle('ready',gauge>=GMAX);
+  const lbl=gauge>=GMAX?'必殺<br>技':'+'+Math.floor(gauge/GMAX*40); if(g.dataset.l!==lbl){g.dataset.l=lbl;g.firstElementChild.innerHTML=lbl;}
 }
 function launch(){ if(running&&onPad&&clearT===0){onPad=false;for(let k=-1;k<=1;k++)addBall(px,PY-10,-Math.PI/2+k*.35);tone(440,.08,'triangle',.06);} }
 function gameOver(){running=false;bgm(false);onGameOver();const o=document.getElementById('over');o.hidden=false;
@@ -436,7 +446,7 @@ function draw(){
   for(const d of drops){const tl=T&&tiles[d.type]; if(tl) ctx.drawImage(tl,d.x-9,d.y-9,18,18);}
   // additive effects layer (explosions, pickups)
   if(atlasOK){ ctx.globalCompositeOperation='lighter';
-    for(const b of booms){const k=1-b.life/b.max;ctx.globalAlpha=1-k*k;sprC('boom',b.x,b.y,50+k*60);}
+    for(const b of booms){const k=1-b.life/b.max;ctx.globalAlpha=1-k*k;sprC('boom',b.x,b.y,70+k*120);}
     for(const f of fxs){const k=1-f.life/f.max;ctx.globalAlpha=Math.min(1,(1-k)*1.6);sprC(f.n,f.x,f.y,f.w*(1+k*f.grow));}
     ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over'; }
   for(const p of parts){ctx.globalAlpha=Math.min(1,p.life*2);ctx.fillStyle=p.col;ctx.fillRect(p.x,p.y,p.s,p.s);}
