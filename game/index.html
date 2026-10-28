@@ -170,19 +170,50 @@ let shake=0,flash=0,flashCol='#fff',clearT=0,running=false,storm=0,feverT=0,t=0,
 const TOKEN_TYPES=['tomato','chili','cheese','mentai'];
 function pickToken(n){const r=Math.random();
   if(r<.42) return 'tomato'; if(r<.62) return 'chili'; if(r<.84) return 'cheese'; return 'mentai';}
+// ---- 20 stage layouts: (c,r) -> 0 empty / 1 pasta / 2 hard / 3 mussel ----
+const hsh=(c,r)=>{const x=Math.sin(c*12.9898+r*78.233)*43758.5453;return x-Math.floor(x);};
+const FONT={P:['111','101','111','100','100'],A:['010','101','111','101','101'],S:['111','100','111','001','111'],T:['111','010','010','010','010']};
+const LAYOUTS=[
+  /* 1 はじめの一皿 */ (c,r)=> (r>=6&&r<=19)?1:0,
+  /* 2 まんなかの柱 */ (c,r)=> (c>=13&&c<=16)?(r%5===0?1:2):1,
+  /* 3 ハート */ (c,r)=>{const x=(c-14.5)/10,y=(r-11)/10,h=Math.pow(x*x+y*y-1,3)-x*x*Math.pow(-y,3);let v=h<0?1:(r>18?2:0);if(r===ROWS-1)v=2;if(v===2&&(c%6===2||c%6===3))v=1;return v;},
+  /* 4 ななめストライプ */ (c,r)=> r<3?1:((c+r)%10<6?1:((c+r)%10===9?2:0)),
+  /* 5 ピラミッド */ (c,r)=> (r>=3&&Math.abs(c-14.5)<(r-2)*.62)?(r===ROWS-1&&c%5!==2?2:1):0,
+  /* 6 市松 */ (c,r)=> ((c/3|0)+(r/3|0))%2===0?1:(r%9===4&&c%3===1?2:0),
+  /* 7 にっこり */ (c,r)=>{const cx=c-14.5,cy=r-12.5,d=Math.hypot(cx/1.15,cy);if(d>12)return 0;
+      if(Math.hypot(cx+5,cy+4)<2.2||Math.hypot(cx-5,cy+4)<2.2)return 2;const y0=5-cx*cx/18;if(Math.abs(cx)<7&&cy>y0-1.4&&cy<y0+.4)return 0;return 1;},
+  /* 8 たてじま */ (c,r)=> c%4<2?(r<2?2:1):0,
+  /* 9 ミルフィーユ */ (c,r)=> r<2?0:(r%4===3?((c%6===2||c%6===3)?1:2):1),
+  /* 10 ダイヤ */ (c,r)=>{const cx=c-14.5,cy=r-12.5,m=Math.abs(cx)/15+Math.abs(cy)/13;if(m>=1)return 0;
+      if(m>.55&&m<.7)return (Math.abs(cx)<1.5||Math.abs(cy)<1)?1:2;return 1;},
+  /* 11 ふたつの塔 */ (c,r)=> (c<10||c>19)?(r<3?2:1):(r>20?1:0),
+  /* 12 なみなみ */ (c,r)=> (r>7+4*Math.sin(c*.42)&&r<19+3*Math.sin(c*.42+1.3))?1:0,
+  /* 13 PASTA */ (c,r)=>{const li=Math.floor(c/6),lc=c%6;if(r>=ROWS-2)return c%6===2?1:2;
+      if(lc===5)return 0;const rr=r-6;if(rr<0||rr>=10)return 0;const g=FONT['PASTA'[li]];return g[rr>>1][[0,0,1,2,2][lc]]==='1'?1:0;},
+  /* 14 うずまき */ (c,r)=>{const cx=c-14.5,cy=r-12.5,d=Math.max(Math.abs(cx)/1.15,Math.abs(cy));if(d>12.5)return 0;
+      let v=(Math.floor(d/2)%2)?2:1;if(v===2&&((Math.abs(cx)<1.5&&cy<0)||(Math.abs(cy)<1&&cx>0)))v=1;return v;},
+  /* 15 トンネル */ (c,r)=> (c===9||c===10||c===19||c===20)?(r%4===0?1:2):1,
+  /* 16 ジグザグ */ (c,r)=> r<1?2:((r+Math.abs((c%12)-6))%8<4?1:0),
+  /* 17 ちらし */ (c,r)=>{const h=hsh(c,r);return h<.5?1:h<.6?2:0;},
+  /* 18 とりで */ (c,r)=>{const cx=c-14.5,cy=r-12.5;if(Math.hypot(cx,cy)<2.6)return 3;
+      if(c<2||c>27||r<2||r>23)return (r>23&&c>=12&&c<=17)||(r<2&&(c===7||c===22))?1:2;return 1;},
+  /* 19 たれる麺 */ (c,r)=>{const len=8+Math.floor(hsh(c,0)*17);if(r<3)return c%5===0?1:2;return (c%2===0&&r<len)?1:0;},
+  /* 20 ムール貝の巣 */ (c,r)=>{const h=hsh(c,r);return h<.1?3:h<.17?2:1;},
+];
+const NSTAGE=LAYOUTS.length;
+const lapOf=n=>Math.floor((n-1)/NSTAGE), idxOf=n=>(n-1)%NSTAGE;
+function stageLabel(n){const l=lapOf(n);return (l>0?(l+1)+'周目 ':'')+'STAGE '+(idxOf(n)+1);}
 function stageGen(n){
   grid=new Uint8Array(COLS*ROWS);hp=new Uint8Array(COLS*ROWS);tokens=[];queue=[];booms=[];
-  const k=(n-1)%4;
+  const idx=idxOf(n),lap=lapOf(n),L=LAYOUTS[idx];
+  const musP=idx===NSTAGE-1?0:.022, hardHp=2+Math.min(lap,2), toHard=Math.min(.3,lap*.1);
   for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
-    let v=0;
-    if(k===0){ v=(n===1)?((r>=6&&r<=19)?1:0):1; if(n>1&&c>=13&&c<=16) v=2; }
-    else if(k===1){ const x=(c-14.5)/10,y=(r-11)/10; const h=Math.pow(x*x+y*y-1,3)-x*x*Math.pow(-y,3); v=h<0?1:(r>18?2:0); if(r===ROWS-1) v=2; if(v===2&&(c%6===2||c%6===3)) v=1; }
-    else if(k===2){ v=((c+r)%10<6)?1:(((c+r)%10===9)?2:0); if(r<3) v=1; }
-    else { const cx=Math.abs(c-14.5),cy=Math.abs(r-12.5); v=(Math.max(cx,cy)%5<3)?1:2; if(cx<2&&cy<2) v=0; if(v===2&&(c===7||c===8||c===21||c===22)) v=1; }
-    if(v===PASTA&&Math.random()<.022) v=MUSSEL;
-    const i=r*COLS+c; grid[i]=v; hp[i]=v===HARD?2:v===MUSSEL?3:1;
+    let v=L(c,r)|0;
+    if(v===PASTA&&lap>0&&Math.random()<toHard) v=HARD;
+    if(v===PASTA&&Math.random()<musP) v=MUSSEL;
+    const i=r*COLS+c; grid[i]=v; hp[i]=v===HARD?hardHp:v===MUSSEL?3:1;
   }
-  const nTok=n===1?18:10+Math.min(n*2,14);
+  const nTok=(idx===0&&lap===0)?18:Math.max(6,Math.round((14-idx*.25)*(1-lap*.25)));
   for(let i=0;i<nTok;i++){
     const c=1+Math.floor(Math.random()*(COLS-2)),r=1+Math.floor(Math.random()*(ROWS-2));
     const idx=r*COLS+c; grid[idx]=0;
@@ -190,9 +221,9 @@ function stageGen(n){
   }
   remain=0;for(let i=0;i<grid.length;i++) if(grid[i]) remain++;
 }
-function reset(){score=0;lives=5;stageN=1;gauge=0;maxCombo=0;newStage();}
-function newStage(){SPEED=Math.min(360,270+(stageN-1)*15);stageGen(stageN);balls=[];parts=[];texts=[];drops=[];fxs=[];onPad=true;combo=0;clearT=0;cloneT=0;
-  bigText('STAGE '+stageN,'#fff4e0',1.2);}
+function reset(){score=0;lives=5;stageN=1;pw=84;gauge=0;maxCombo=0;newStage();}
+function newStage(){const lap=lapOf(stageN),idx=idxOf(stageN);SPEED=Math.min(400,270+idx*4+lap*40);pw=Math.max(64,84-lap*8);gauge=0;stageGen(stageN);balls=[];parts=[];texts=[];drops=[];fxs=[];onPad=true;combo=0;clearT=0;cloneT=0;
+  if(idx===0&&lap>0) bigText((lap+1)+'周目 突入!','#ff6b52',1.6,34); else bigText(stageLabel(stageN),'#fff4e0',1.2);}
 function addBall(x,y,a,p=0){ if(balls.length>=MAXB) return null; const b={x,y,vx:Math.cos(a)*SPEED,vy:Math.sin(a)*SPEED,p}; balls.push(b); return b; }
 function bigText(s,col,life=1,size=40){texts.push({s,col,life,max:life,size,big:true,x:W/2,y:H*.45});}
 function popText(s,x,y,col){ if(texts.length>40) return; texts.push({s,x,y,col,life:.7,max:.7,size:13});}
@@ -331,7 +362,7 @@ function update(dt){
 }
 function launch(){ if(running&&onPad&&clearT===0){onPad=false;for(let k=-1;k<=1;k++)addBall(px,PY-10,-Math.PI/2+k*.35);tone(440,.08,'triangle',.06);} }
 function gameOver(){running=false;bgm(false);onGameOver();const o=document.getElementById('over');o.hidden=false;
-  document.getElementById('result').innerHTML=`スコア <b>${score.toLocaleString()}</b><br>ステージ ${stageN} ／ 最大コンボ ${maxCombo}`;}
+  document.getElementById('result').innerHTML=`スコア <b>${score.toLocaleString()}</b><br>${stageLabel(stageN)} ／ 最大コンボ ${maxCombo}`;}
 
 // ---------- draw ----------
 let tiles={};
@@ -409,7 +440,7 @@ function draw(){
   // HUD
   ctx.textBaseline='alphabetic';ctx.textAlign='left';
   ctx.font='19px '+DISP;ctx.lineWidth=4;ctx.strokeStyle='#5a1a0c';ctx.strokeText(score.toLocaleString(),10,28);ctx.fillStyle='#ffd84a';ctx.fillText(score.toLocaleString(),10,28);
-  ctx.font='11px '+DISP;ctx.fillStyle='#fff4e0';ctx.fillText('STAGE '+stageN+'   ボール '+balls.length,10,46);
+  ctx.font='11px '+DISP;ctx.fillStyle='#fff4e0';ctx.fillText(stageLabel(stageN)+'   ボール '+balls.length,10,46);
   if(atlasOK){ sprC('life',W-50,24,24); } 
   ctx.textAlign='right';ctx.font='17px '+DISP;ctx.strokeStyle='#5a1a0c';ctx.strokeText('×'+lives,W-10,31);ctx.fillStyle='#ffd84a';ctx.fillText('×'+lives,W-10,31);
   let hy=50;
