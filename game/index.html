@@ -169,7 +169,7 @@ function sweep(){ if(!ac||muted) return; const t=ac.currentTime,o=ac.createOscil
 // ---------- state ----------
 let grid,hp,tokens,balls,parts,texts,drops,remain,queue,booms;
 let px=W/2,targetX=W/2,pw=84,onPad=true,score=0,lives=5,stageN=1,combo=0,comboT=0,maxCombo=0,gauge=0;
-const GMAX=150;
+const GMAX=400;
 let fxs=[],pvx=0,ppx=W/2,runD=0,hitT=0;
 let shake=0,flash=0,flashCol='#fff',clearT=0,running=false,storm=0,feverT=0,t=0,cloneT=0,boomSnd=0;
 
@@ -250,12 +250,12 @@ function hit(i,force,col){
   if(!force && --hp[i]>0){ blip(combo); const [x,y]=cellXY(i); if(grid[i]===MUSSEL) burst(x,y,'#3b4a6b',3,60); return; }
   destroy(i,col);
 }
-function destroy(i,col){
+function destroy(i,col,chain){
   const type=grid[i]; if(!isBrk(type)) return; grid[i]=0; remain--;
   combo++; comboT=.7; if(combo>maxCombo) maxCombo=combo;
   const mult=1+Math.floor(combo/20);
   if(combo===20) fx('x2',W/2,H*.3,120,.9,.3); else if(combo===40) fx('x3',W/2,H*.3,130,.9,.3);
-  score+=10*mult; gauge=Math.min(GMAX,gauge+1);
+  score+=10*mult; gauge=Math.min(GMAX,gauge+(chain?.2:1)/(1+balls.length/60));
   const [x,y]=cellXY(i);
   const c=col||(type===HARD?'#bfb3a6':type===MUSSEL?'#3b4a6b':(Math.random()<.5?'#f5c542':'#ffe08a'));
   burst(x,y,c,balls.length>400?1:3);
@@ -336,7 +336,7 @@ function update(dt){
   if(storm>0) storm-=dt;
   if(cloneT>0){cloneT-=dt; if(cloneT<=0) burst(W-px,PY,'#ff8fa3',20,150);}
   // delayed destructions (cheese melt, mussel blasts)
-  if(queue.length){ let w=0; for(let k=0;k<queue.length;k++){const q=queue[k]; if(q.at<=t) destroy(q.i,q.col); else queue[w++]=q;} queue.length=w; }
+  if(queue.length){ let w=0; for(let k=0;k<queue.length;k++){const q=queue[k]; if(q.at<=t) destroy(q.i,q.col,true); else queue[w++]=q;} queue.length=w; }
   const sub=2,h=dt/sub,cx2=W-px;
   for(let bi=balls.length-1;bi>=0;bi--){
     const b=balls[bi]; let dead=false;
