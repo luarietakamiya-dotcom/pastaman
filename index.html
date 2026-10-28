@@ -34,7 +34,22 @@ a{color:inherit;text-decoration:none}button,input{font:inherit}img{display:block
 
 .post-card{width:100%}.post-link{display:block}.post-link:focus-visible{outline:3px solid var(--red);outline-offset:-3px}.post-link:hover{background:var(--paper)}.post-meta strong{font-size:18px;line-height:1.65;overflow-wrap:anywhere}.post-meta .post-author{color:var(--green);margin-top:16px}.post-open{display:block;margin-top:18px;font-size:12px;color:var(--red)}.post-count{font-size:12px;color:var(--muted);margin:0 0 22px}.filter-btn:focus-visible{outline:2px solid var(--red);outline-offset:3px}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-.post-embed{padding:0 10px;min-width:0}.post-embed .twitter-tweet{margin:0 auto 12px!important;max-width:100%!important}.post-embed blockquote{padding:16px;font-size:13px;line-height:1.8;border-left:2px solid var(--line)}.post-embed a,.post-original{color:var(--red);text-decoration:underline;text-underline-offset:3px}.post-original{display:block;padding:8px 18px 20px;font-size:12px}.post-original:focus-visible{outline:2px solid var(--red);outline-offset:-3px}.post-card{vertical-align:top}.post-card .post-meta{padding-bottom:14px}
+.post-embed{padding:0 10px;min-width:0}
+.post-embed a.xprev{display:block;position:relative;aspect-ratio:16/10;max-width:100%;margin:0 0 12px;border-radius:12px;overflow:hidden;color:#fffdf8;text-decoration:none;background:#0e2a1e}
+.xprev .xbg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 22%;transition:transform .4s}
+.xprev::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(180deg,rgba(14,42,30,.05) 30%,rgba(14,42,30,.88) 100%)}
+.xprev .xplay{position:absolute;z-index:2;left:50%;top:44%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;background:rgba(255,253,248,.94);color:var(--red);display:grid;place-items:center;font-size:20px;padding-left:4px;box-shadow:0 8px 24px rgba(0,0,0,.35);transition:transform .2s}
+.xprev .xh{position:absolute;z-index:2;left:14px;right:14px;bottom:12px;display:flex;align-items:center;gap:10px}
+.xprev .xav{width:30px;height:30px;border-radius:50%;background:var(--red);display:grid;place-items:center;font-size:13px;font-weight:700;color:#fff;flex:none}
+.xprev .xn{font-size:13px;line-height:1.3;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.xprev .xn small{display:block;font-size:10px;letter-spacing:.12em;opacity:.75}
+.xprev:hover .xplay,.xprev:focus-visible .xplay{transform:scale(1.1)}.xprev:hover .xbg{transform:scale(1.04)}
+.post-embed a.xprev:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.xprev .xbg,.xprev .xplay{transition:none}}
+.xframe{display:block;width:100%;max-width:550px;margin:0 auto 12px;border:0;height:0;overflow:hidden}
+.xframe.on{height:auto}
+.post-embed.live .xprev{display:none}
+.post-embed .twitter-tweet{margin:0 auto 12px!important;max-width:100%!important}.post-embed blockquote{padding:16px;font-size:13px;line-height:1.8;border-left:2px solid var(--line)}.post-embed a,.post-original{color:var(--red);text-decoration:underline;text-underline-offset:3px}.post-original{display:block;padding:8px 18px 20px;font-size:12px}.post-original:focus-visible{outline:2px solid var(--red);outline-offset:-3px}.post-card{vertical-align:top}.post-card .post-meta{padding-bottom:14px}
 
 .recipe-posts{margin-top:56px;padding-top:28px;border-top:1px solid var(--line)}.recipe-posts>.section-note{max-width:none;margin-bottom:24px}
 </style>
@@ -81,6 +96,37 @@ const audio=document.getElementById('audio'),playBtn=document.getElementById('pl
 const fmt=s=>{if(!isFinite(s))return'00:00';const m=Math.floor(s/60),ss=Math.floor(s%60);return`${String(m).padStart(2,'0')}:${String(ss).padStart(2,'0')}`};audio.volume=.8;
 playBtn.addEventListener('click',async()=>{try{if(audio.paused){await audio.play();playBtn.textContent='Ⅱ';record.classList.add('playing');musicNote.textContent='再生中 — Buon ascolto.'}else{audio.pause();playBtn.textContent='▶';record.classList.remove('playing')}}catch(e){musicNote.textContent='音源がまだセットされていません。'}});
 audio.addEventListener('timeupdate',()=>{seek.value=audio.duration?audio.currentTime/audio.duration*100:0;timeLabel.textContent=`${fmt(audio.currentTime)} / ${fmt(audio.duration)}`});audio.addEventListener('loadedmetadata',()=>timeLabel.textContent=`00:00 / ${fmt(audio.duration)}`);audio.addEventListener('ended',()=>{playBtn.textContent='▶';record.classList.remove('playing')});seek.addEventListener('input',()=>{if(audio.duration)audio.currentTime=seek.value/100*audio.duration});volume.addEventListener('input',()=>audio.volume=volume.value);
+</script>
+<script>
+/* X posts: build a visible preview card, then try X's own embed; if X's loader is blocked, try the embed frame directly. */
+(()=>{
+  const cards=[...document.querySelectorAll('.post-card')];
+  cards.forEach(card=>{
+    const emb=card.querySelector('.post-embed'),bq=emb&&emb.querySelector('blockquote.twitter-tweet'),a=bq&&bq.querySelector('a');if(!a)return;
+    const m=a.href.match(/status\/(\d+)/);if(!m)return;const id=m[1];
+    const title=(card.querySelector('.post-meta strong')||{}).textContent||'',author=((card.querySelector('.post-author')||{}).textContent||'').replace(/さん$/,'');
+    const user=(a.href.match(/x\.com\/([^/]+)/)||[])[1]||'';
+    const pv=document.createElement('a');pv.className='xprev';pv.href=a.href;pv.target='_blank';pv.rel='noopener noreferrer';
+    const imgs=['card-pastaman','card-02','card-03','card-04','card-05','hero-wide'];
+    pv.innerHTML='<img class="xbg" alt="" loading="lazy"><span class="xplay" aria-hidden="true">▶</span><div class="xh"><span class="xav"></span><span class="xn"><b></b><small></small></span></div>';
+    pv.querySelector('.xbg').src='assets/thumbs/'+imgs[cards.indexOf(card)%imgs.length]+'.jpg';
+    pv.querySelector('.xav').textContent=(author||'P').slice(0,1);pv.querySelector('.xn b').textContent=author+'  @'+user;pv.querySelector('.xn small').textContent='Xで再生・表示する ↗';
+    pv.setAttribute('aria-label',author+'さんの投稿「'+title+'」をXで開く（新しいタブ）');
+    emb.insertBefore(pv,bq);bq.dataset.xid=id;bq.style.display='none';
+  });
+  const live=e=>{e.classList.add('live');};
+  // success of widgets.js: blockquote replaced by an iframe/div with twitter-tweet-rendered
+  const mo=new MutationObserver(()=>{document.querySelectorAll('.post-embed:not(.live) .twitter-tweet-rendered').forEach(n=>live(n.closest('.post-embed')));});
+  mo.observe(document.body,{subtree:true,childList:true});
+  // direct frame fallback, shown only once X reports its height
+  const frames=new Map();
+  addEventListener('message',ev=>{if(!/^https:\/\/platform\.twitter\.com$/.test(ev.origin))return;let d=ev.data;try{if(typeof d==='string')d=JSON.parse(d);}catch(e){return;}
+    const p=d&&d['twttr.embed'];if(!p||p.method!=='twttr.private.resize')return;const h=p.params&&p.params[0]&&p.params[0].height;
+    for(const [f,em] of frames) if(f.contentWindow===ev.source&&h>0){f.style.height=Math.ceil(h)+'px';f.classList.add('on');live(em);}});
+  setTimeout(()=>{document.querySelectorAll('.post-embed:not(.live)').forEach(em=>{const bq=em.querySelector('blockquote[data-xid]');if(!bq||em.querySelector('.twitter-tweet-rendered'))return;
+    const f=document.createElement('iframe');f.className='xframe';f.loading='lazy';f.title='Xの投稿';f.setAttribute('scrolling','no');f.allow='autoplay; encrypted-media; fullscreen';
+    f.src='https://platform.twitter.com/embed/Tweet.html?dnt=true&lang=ja&theme=light&hideThread=true&id='+bq.dataset.xid;frames.set(f,em);em.insertBefore(f,bq);});},5000);
+})();
 </script>
 <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
 </body>
