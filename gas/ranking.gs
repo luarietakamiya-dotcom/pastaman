@@ -1,12 +1,17 @@
 /**
  * パスタマン ブレイカー みんなのランキング (Google Apps Script)
  *
- * 1人1行で自己ベストを保存する。プレイヤーはブラウザごとのランダムなキーで区別。
- * 設置手順は game/README.md を参照。
+ * 登録ごとに log シートへ1行追記し、読み出し時に期間ごと（今日・週間・月間・年間・総合）の
+ * 自己ベストランキングを組み立てる。期間の区切りは日本時間（週は月曜はじまり）。
+ * プレイヤーはブラウザごとのランダムなキーで区別。設置手順は game/README.md を参照。
  */
-const SHEET_NAME = 'ranking';
+const LOG_SHEET = 'log';
+const OLD_SHEET = 'ranking'; // 旧バージョンの自己ベスト表（あれば初回に log へ取り込む）
 const TOP_N = 50;
 const MAX_SCORE = 50000000;
+const JST = 9 * 3600 * 1000;
+const DAY = 24 * 3600 * 1000;
+const PERIODS = ['day', 'week', 'month', 'year', 'all'];
 
 // スプレッドシートから開いたスクリプトならそのシートを使う。
 // script.google.com で単体作成したスクリプトなら、初回に「パスタマン ランキング」を自動で作って覚える。
@@ -23,22 +28,62 @@ function book_() {
   return ss;
 }
 
-function sheet_() {
+function log_() {
   const ss = book_();
-  let sh = ss.getSheetByName(SHEET_NAME);
+  let sh = ss.getSheetByName(LOG_SHEET);
   if (!sh) {
-    sh = ss.insertSheet(SHEET_NAME);
-    sh.appendRow(['key', 'name', 'score', 'stage', 'combo', 'updated']);
+    sh = ss.insertSheet(LOG_SHEET);
+    sh.appendRow(['time', 'key', 'name', 'score', 'stage', 'combo']);
+    const old = ss.getSheetByName(OLD_SHEET);
+    if (old) {
+      const rows = old.getDataRange().getValues().slice(1).filter(function (r) { return r[0]; });
+      const add = rows.map(function (r) { return [r[5] instanceof Date ? r[5] : new Date(), r[0], r[1], r[2], r[3], r[4]]; });
+      if (add.length) sh.getRange(2, 1, add.length, 6).setValues(add);
+    }
   }
   return sh;
 }
 
-function top_(key) {
-  const rows = sheet_().getDataRange().getValues().slice(1).filter(function (r) { return r[0]; });
-  rows.sort(function (a, b) { return Number(b[2]) - Number(a[2]); });
-  return rows.slice(0, TOP_N).map(function (r) {
-    return { name: String(r[1]), score: Number(r[2]), stage: Number(r[3]), combo: Number(r[4]), me: !!key && r[0] === key };
+// 各期間の開始時刻（ミリ秒）
+function starts_(now) {
+  const j = new Date(now + JST);
+  const y = j.getUTCFullYear(), m = j.getUTCMonth(), d = j.getUTCDate();
+  const day = Date.UTC(y, m, d) - JST;
+  const dow = (j.getUTCDay() + 6) % 7; // 月曜=0
+  return { day: day, week: day - dow * DAY, month: Date.UTC(y, m, 1) - JST, year: Date.UTC(y, 0, 1) - JST, all: 0 };
+}
+
+function boards_(key) {
+  const rows = log_().getDataRange().getValues().slice(1);
+  const st = starts_(Date.now());
+  const latestName = {};
+  const best = {}; PERIODS.forEach(function (p) { best[p] = {}; });
+  rows.forEach(function (r) {
+    const t = r[0] instanceof Date ? r[0].getTime() : Number(new Date(r[0])) || 0;
+    const k = String(r[1]); const score = Number(r[3]) || 0;
+    if (!k || score <= 0) return;
+    if (!latestName[k] || t >= latestName[k].t) latestName[k] = { t: t, name: String(r[2]) };
+    PERIODS.forEach(function (p) {
+      if (t < st[p]) return;
+      const b = best[p][k];
+      if (!b || score > b.score) best[p][k] = { score: score, stage: Number(r[4]) || 1, combo: Number(r[5]) || 0 };
+    });
   });
+  const out = {}, mine = {};
+  PERIODS.forEach(function (p) {
+    const list = Object.keys(best[p]).map(function (k) {
+      const b = best[p][k];
+      return { k: k, name: latestName[k] ? latestName[k].name : '名無しのパスタ', score: b.score, stage: b.stage, combo: b.combo };
+    });
+    list.sort(function (a, b) { return b.score - a.score; });
+    let myRank = 0, myBest = 0;
+    list.forEach(function (e, i) { if (key && e.k === key) { myRank = i + 1; myBest = e.score; } });
+    mine[p] = { rank: myRank, best: myBest, total: list.length };
+    out[p] = list.slice(0, TOP_N).map(function (e) {
+      return { name: e.name, score: e.score, stage: e.stage, combo: e.combo, me: !!key && e.k === key };
+    });
+  });
+  return { boards: out, mine: mine };
 }
 
 function out_(obj) {
@@ -48,14 +93,14 @@ function out_(obj) {
 function cleanName_(v) {
   let name = String(v || '').replace(/[\u0000-\u001f\u007f<>]/g, '').trim().slice(0, 12);
   if (!name) name = '名無しのパスタ';
-  // スプレッドシートの数式として解釈させない
-  if (/^[=+\-@]/.test(name)) name = "'" + name;
+  if (/^[=+\-@]/.test(name)) name = "'" + name; // 数式として解釈させない
   return name;
 }
 
 function doGet(e) {
   const key = String((e && e.parameter && e.parameter.key) || '');
-  return out_({ ok: true, rows: top_(key) });
+  const b = boards_(key);
+  return out_({ ok: true, boards: b.boards, mine: b.mine });
 }
 
 function doPost(e) {
@@ -70,27 +115,10 @@ function doPost(e) {
     const stage = Math.max(1, Math.min(999, Math.floor(Number(d.stage)) || 1));
     const combo = Math.max(0, Math.min(99999, Math.floor(Number(d.combo)) || 0));
     const name = cleanName_(d.name);
-
-    const sh = sheet_();
-    const vals = sh.getDataRange().getValues();
-    let row = -1;
-    for (let i = 1; i < vals.length; i++) if (vals[i][0] === key) { row = i + 1; break; }
-
-    let improved = false, best = score;
-    if (row < 0) {
-      sh.appendRow([key, name, score, stage, combo, new Date()]);
-      improved = true;
-    } else {
-      best = Number(vals[row - 1][2]) || 0;
-      if (score > best) {
-        sh.getRange(row, 2, 1, 5).setValues([[name, score, stage, combo, new Date()]]);
-        improved = true;
-        best = score;
-      } else {
-        sh.getRange(row, 2).setValue(name);
-      }
-    }
-    return out_({ ok: true, improved: improved, best: best, rows: top_(key) });
+    const before = boards_(key).mine.all.best;
+    log_().appendRow([new Date(), key, name, score, stage, combo]);
+    const b = boards_(key);
+    return out_({ ok: true, improved: score > before, best: Math.max(before, score), boards: b.boards, mine: b.mine });
   } catch (err) {
     return out_({ ok: false, error: String(err) });
   } finally {

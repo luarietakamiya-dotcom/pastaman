@@ -47,6 +47,11 @@ canvas{display:block;width:100%;height:100%;border-radius:6px}
 .btn:disabled{opacity:.5;cursor:default}
 .rankbox{width:100%;max-width:320px;display:flex;flex-direction:column;gap:6px}
 .rankbox h2{margin:0;font-family:var(--display);font-weight:400;font-size:15px;color:var(--ink);letter-spacing:.08em}
+#rankView{background:var(--bg)}
+.tabs{display:flex;gap:4px}
+.tabs button{flex:1;min-width:0;font:800 12px var(--body);color:var(--muted);background:#2a1814;border:0;border-radius:8px;padding:7px 0;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--cheese);color:var(--bg)}
+.tabs button:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
 .rank{list-style:none;margin:0;padding:0;max-height:34vh;overflow-y:auto;border-top:1px solid #4a3028}
 .rank li{display:grid;grid-template-columns:2.2em 1fr auto;gap:8px;align-items:baseline;padding:6px 4px;border-bottom:1px solid #3a2620;font-size:14px;text-align:left}
 .rank li .n{font-family:var(--display);color:var(--muted);text-align:right}
@@ -108,11 +113,11 @@ canvas{display:block;width:100%;height:100%;border-radius:6px}
       <button class="btn mini" id="submitBtn" type="submit">登録</button>
     </form>
     <p class="small" id="entryMsg"></p>
-    <div class="rankbox"><h2 class="rankTitle">ランキング</h2><ol class="rank" id="rankList"></ol></div>
+    <div class="rankbox"><h2 class="rankTitle">ランキング</h2><div class="tabs" role="tablist" aria-label="ランキングの期間"><button type="button" role="tab" data-p="day">今日</button><button type="button" role="tab" data-p="week">週間</button><button type="button" role="tab" data-p="month">月間</button><button type="button" role="tab" data-p="year">年間</button><button type="button" role="tab" data-p="all">総合</button></div><ol class="rank" id="rankList"></ol></div>
     <button class="btn" id="again" type="button">もう一回</button>
   </div>
   <div class="overlay" id="rankView" hidden>
-    <div class="rankbox"><h2 class="rankTitle">ランキング</h2><ol class="rank" id="rankList2"></ol></div>
+    <div class="rankbox"><h2 class="rankTitle">ランキング</h2><div class="tabs" role="tablist" aria-label="ランキングの期間"><button type="button" role="tab" data-p="day">今日</button><button type="button" role="tab" data-p="week">週間</button><button type="button" role="tab" data-p="month">月間</button><button type="button" role="tab" data-p="year">年間</button><button type="button" role="tab" data-p="all">総合</button></div><ol class="rank" id="rankList2"></ol></div>
     <button class="btn" id="closeRank" type="button">もどる</button>
   </div>
 </div></div>
@@ -120,7 +125,8 @@ canvas{display:block;width:100%;height:100%;border-radius:6px}
 <script>
 (()=>{
 const W=360,H=640,COLS=30,CELL=12,TOP=72,ROWS=26,PY=496,BR=3.2,MAXB=1800;
-const EMPTY=0,PASTA=1,HARD=2,MUSSEL=3;
+const EMPTY=0,PASTA=1,HARD=2,MUSSEL=3,WALL=4;
+const isBrk=v=>v>0&&v!==WALL;
 let SPEED=270;
 const cv=document.getElementById('c'),ctx=cv.getContext('2d');
 const DISP=getComputedStyle(document.documentElement).getPropertyValue('--display');
@@ -183,7 +189,7 @@ const LAYOUTS=[
   /* 7 にっこり */ (c,r)=>{const cx=c-14.5,cy=r-12.5,d=Math.hypot(cx/1.15,cy);if(d>12)return 0;
       if(Math.hypot(cx+5,cy+4)<2.2||Math.hypot(cx-5,cy+4)<2.2)return 2;const y0=5-cx*cx/18;if(Math.abs(cx)<7&&cy>y0-1.4&&cy<y0+.4)return 0;return 1;},
   /* 8 たてじま */ (c,r)=> c%4<2?(r<2?2:1):0,
-  /* 9 ミルフィーユ */ (c,r)=> r<2?0:(r%4===3?((c%6===2||c%6===3)?1:2):1),
+  /* 9 ミルフィーユ */ (c,r)=>{if(r<2)return 0;if(r%4===3){const o=((r>>2)%2)?2:7;return (c%10===o||c%10===o+1)?1:4;}return 1;},
   /* 10 ダイヤ */ (c,r)=>{const cx=c-14.5,cy=r-12.5,m=Math.abs(cx)/15+Math.abs(cy)/13;if(m>=1)return 0;
       if(m>.55&&m<.7)return (Math.abs(cx)<1.5||Math.abs(cy)<1)?1:2;return 1;},
   /* 11 ふたつの塔 */ (c,r)=> (c<10||c>19)?(r<3?2:1):(r>20?1:0),
@@ -192,13 +198,18 @@ const LAYOUTS=[
       if(lc===5)return 0;const rr=r-6;if(rr<0||rr>=10)return 0;const g=FONT['PASTA'[li]];return g[rr>>1][[0,0,1,2,2][lc]]==='1'?1:0;},
   /* 14 うずまき */ (c,r)=>{const cx=c-14.5,cy=r-12.5,d=Math.max(Math.abs(cx)/1.15,Math.abs(cy));if(d>12.5)return 0;
       let v=(Math.floor(d/2)%2)?2:1;if(v===2&&((Math.abs(cx)<1.5&&cy<0)||(Math.abs(cy)<1&&cx>0)))v=1;return v;},
-  /* 15 トンネル */ (c,r)=> (c===9||c===10||c===19||c===20)?(r%4===0?1:2):1,
+  /* 15 トンネル */ (c,r)=> (c===9||c===10||c===19||c===20)?(r%4===0?1:4):1,
   /* 16 ジグザグ */ (c,r)=> r<1?2:((r+Math.abs((c%12)-6))%8<4?1:0),
   /* 17 ちらし */ (c,r)=>{const h=hsh(c,r);return h<.5?1:h<.6?2:0;},
   /* 18 とりで */ (c,r)=>{const cx=c-14.5,cy=r-12.5;if(Math.hypot(cx,cy)<2.6)return 3;
       if(c<2||c>27||r<2||r>23)return (r>23&&c>=12&&c<=17)||(r<2&&(c===7||c===22))?1:2;return 1;},
   /* 19 たれる麺 */ (c,r)=>{const len=8+Math.floor(hsh(c,0)*17);if(r<3)return c%5===0?1:2;return (c%2===0&&r<len)?1:0;},
-  /* 20 ムール貝の巣 */ (c,r)=>{const h=hsh(c,r);return h<.1?3:h<.17?2:1;},
+  /* 20 鉄の迷路 */ (c,r)=>{if(r<1)return 0;if(r%5===0&&r<=20){const left=(r/5)%2===1;const gap=left?(c>=2&&c<=4):(c>=25&&c<=27);return gap?1:4;}return 1;},
+  /* 21 鉄格子 */ (c,r)=> r<2?0:((c%5===2&&r>=4&&r<=21)?4:1),
+  /* 22 じょうご */ (c,r)=>{if(r<8)return 1;if(r>22)return 0;const cx=c-14.5,w=3+(22-r)*.75,a=Math.abs(cx);if(Math.abs(a-w)<.8)return 4;return a<w?1:0;},
+  /* 23 金庫 */ (c,r)=>{const cx=(c-14.5)/1.2,cy=r-12.5,d=Math.max(Math.abs(cx),Math.abs(cy));
+      if(d>=5.2&&d<6.2)return (Math.abs(c-14.5)<1.5&&cy<0)?1:4;if(d<5.2)return hsh(c,r)<.3?3:1;return 1;},
+  /* 24 ムール貝の巣 */ (c,r)=>{const h=hsh(c,r);return h<.1?3:h<.17?2:1;},
 ];
 const NSTAGE=LAYOUTS.length;
 const lapOf=n=>Math.floor((n-1)/NSTAGE), idxOf=n=>(n-1)%NSTAGE;
@@ -216,10 +227,10 @@ function stageGen(n){
   const nTok=(idx===0&&lap===0)?18:Math.max(6,Math.round((14-idx*.25)*(1-lap*.25)));
   for(let i=0;i<nTok;i++){
     const c=1+Math.floor(Math.random()*(COLS-2)),r=1+Math.floor(Math.random()*(ROWS-2));
-    const idx=r*COLS+c; grid[idx]=0;
+    const idx=r*COLS+c; if(grid[idx]===WALL){ if(i>-50) i--; continue; } grid[idx]=0;
     tokens.push({x:c*CELL+CELL/2,y:TOP+r*CELL+CELL/2,type:pickToken(n),alive:true,ph:Math.random()*6});
   }
-  remain=0;for(let i=0;i<grid.length;i++) if(grid[i]) remain++;
+  remain=0;for(let i=0;i<grid.length;i++) if(isBrk(grid[i])) remain++;
 }
 function reset(){score=0;lives=5;stageN=1;pw=84;gauge=0;maxCombo=0;newStage();}
 function newStage(){const lap=lapOf(stageN),idx=idxOf(stageN);SPEED=Math.min(400,270+idx*4+lap*40);pw=Math.max(64,84-lap*8);gauge=0;stageGen(stageN);balls=[];parts=[];texts=[];drops=[];fxs=[];onPad=true;combo=0;clearT=0;cloneT=0;
@@ -235,11 +246,12 @@ const CALLS=[[30,'ボーノ!'],[80,'ベリッシモ!!'],[150,'マンマミーア
 // damage a brick; force = destroy regardless of hp
 function hit(i,force,col){
   if(!grid[i]) return;
+  if(grid[i]===WALL){ if(blipBudget>0&&Math.random()<.3){blipBudget--;tone(2400,.03,'triangle',.015);} return; }
   if(!force && --hp[i]>0){ blip(combo); const [x,y]=cellXY(i); if(grid[i]===MUSSEL) burst(x,y,'#3b4a6b',3,60); return; }
   destroy(i,col);
 }
 function destroy(i,col){
-  const type=grid[i]; if(!type) return; grid[i]=0; remain--;
+  const type=grid[i]; if(!isBrk(type)) return; grid[i]=0; remain--;
   combo++; comboT=.7; if(combo>maxCombo) maxCombo=combo;
   const mult=1+Math.floor(combo/20);
   if(combo===20) fx('x2',W/2,H*.3,120,.9,.3); else if(combo===40) fx('x3',W/2,H*.3,130,.9,.3);
@@ -259,7 +271,7 @@ function explode(i){
   booms.push({x,y,life:.5,max:.5});
   for(let dy=-4;dy<=4;dy++)for(let dx=-4;dx<=4;dx++){const d=Math.hypot(dx,dy);if(d>R||d===0)continue;
     const c=cx+dx,r=cy+dy;if(c<0||c>=COLS||r<0||r>=ROWS)continue;const j=r*COLS+c;
-    if(grid[j]) queue.push({i:j,at:t+d*.035,col:'#ff8a3d'});}
+    if(isBrk(grid[j])) queue.push({i:j,at:t+d*.035,col:'#ff8a3d'});}
   burst(x,y,'#ff8a3d',30,260);burst(x,y,'#fff4e0',12,180);
   shake=Math.min(shake+6,14); flash=Math.max(flash,.3); flashCol='#ff8a3d';
   if(boomSnd<=0){noise(.45,.3);tone(70,.3,'sine',.2);boomSnd=.08;}
@@ -269,12 +281,12 @@ function explode(i){
 function melt(x,y){
   const sc=Math.floor(x/CELL),sr=Math.floor((y-TOP)/CELL);
   const seen=new Uint8Array(COLS*ROWS),q=[];
-  for(let rad=1;rad<=6&&!q.length;rad++) for(let dy=-rad;dy<=rad;dy++)for(let dx=-rad;dx<=rad;dx++){const c=sc+dx,r=sr+dy;if(c<0||c>=COLS||r<0||r>=ROWS)continue;const j=r*COLS+c;if(grid[j]&&!seen[j]){seen[j]=1;q.push([j,0]);}}
+  for(let rad=1;rad<=6&&!q.length;rad++) for(let dy=-rad;dy<=rad;dy++)for(let dx=-rad;dx<=rad;dx++){const c=sc+dx,r=sr+dy;if(c<0||c>=COLS||r<0||r>=ROWS)continue;const j=r*COLS+c;if(isBrk(grid[j])&&!seen[j]){seen[j]=1;q.push([j,0]);}}
   let n=0;
   for(let h=0;h<q.length&&n<220;h++){const [j,d]=q[h];queue.push({i:j,at:t+d*.028,col:'#ffd84a'});n++;
     const c=j%COLS,r=Math.floor(j/COLS);
     for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const cc=c+dx,rr=r+dy;if(cc<0||cc>=COLS||rr<0||rr>=ROWS)continue;const k=rr*COLS+cc;
-      if(grid[k]&&!seen[k]){seen[k]=1;q.push([k,d+1]);}}}
+      if(isBrk(grid[k])&&!seen[k]){seen[k]=1;q.push([k,d+1]);}}}
   return n;
 }
 function trigger(type,x,y,ball){
@@ -327,7 +339,7 @@ function update(dt){
       const cx=Math.floor(nx/CELL),cy=Math.floor((ny-TOP)/CELL);
       if(cy>=0&&cy<ROWS&&cx>=0&&cx<COLS&&grid[cy*COLS+cx]){
         const i=cy*COLS+cx;
-        if(b.p>0){ hit(i,true,'#ff6b3d'); b.x=nx;b.y=ny; }
+        if(b.p>0&&grid[i]!==WALL){ hit(i,true,'#ff6b3d'); b.x=nx;b.y=ny; }
         else{
           const ocx=Math.floor(b.x/CELL),ocy=Math.floor((b.y-TOP)/CELL);
           if(ocx!==cx&&ocy===cy) b.vx=-b.vx; else if(ocy!==cy&&ocx===cx) b.vy=-b.vy; else {b.vx=-b.vx;b.vy=-b.vy;}
@@ -368,9 +380,13 @@ function gameOver(){running=false;bgm(false);onGameOver();const o=document.getEl
 let tiles={};
 function tile(n,sz,alpha=1){const c=document.createElement('canvas');const px=Math.max(2,Math.round(sz*scale));c.width=c.height=px;
   const g=c.getContext('2d');g.globalAlpha=alpha;const m=SP[n];g.drawImage(ATLAS,m[0],m[1],m[2],m[3],0,0,px,px);return c;}
+function wallTile(sz){const c=document.createElement('canvas');const p=Math.max(4,Math.round(sz*scale));c.width=c.height=p;const g=c.getContext('2d');
+  const gr=g.createLinearGradient(0,0,p,p);gr.addColorStop(0,'#8a9bb0');gr.addColorStop(.5,'#4b5a6e');gr.addColorStop(1,'#2a3341');g.fillStyle=gr;g.fillRect(0,0,p,p);
+  g.strokeStyle='#1a2029';g.lineWidth=Math.max(1,p*.08);g.strokeRect(g.lineWidth/2,g.lineWidth/2,p-g.lineWidth,p-g.lineWidth);
+  g.fillStyle='#c9d3df';const rr=Math.max(1,p*.07);for(const [a,b] of [[.25,.25],[.75,.25],[.25,.75],[.75,.75]]){g.beginPath();g.arc(p*a,p*b,rr,0,6.283);g.fill();}return c;}
 function buildTiles(){ if(!atlasOK) return; const s=CELL-1;
   tiles={brick:tile('brick',s),stone:tile('stone',s),stone1:tile('stone',s,.6),mussel:tile('mussel',s+2),ball:tile('ball',BR*2.3),
-    tomato:tile('tomato',16),chili:tile('chili',16),cheese:tile('cheese',17),mentai:tile('mentai',17)};}
+    wall:wallTile(CELL),tomato:tile('tomato',16),chili:tile('chili',16),cheese:tile('cheese',17),mentai:tile('mentai',17)};}
 function spr(n,dx,dy,dw,dh){const m=SP[n];ctx.drawImage(ATLAS,m[0],m[1],m[2],m[3],dx,dy,dw,dh);}
 function sprC(n,x,y,w){const m=SP[n];const h=w*m[3]/m[2];spr(n,x-w/2,y-h/2,w,h);}
 function fx(n,x,y,w,life=.6,grow=.5){ if(fxs.length<24) fxs.push({n,x,y,w,life,max:life,grow}); }
@@ -406,9 +422,10 @@ function draw(){
   const T=atlasOK&&tiles.brick;
   for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){const i=r*COLS+c,v=grid[i];if(!v)continue;
     const x=c*CELL+.5,y=TOP+r*CELL+.5;
-    if(!T){ctx.fillStyle=v===PASTA?'#f2c14e':v===HARD?'#8c7f75':'#1f2a44';ctx.fillRect(x,y,CELL-1,CELL-1);continue;}
+    if(!T){ctx.fillStyle=v===PASTA?'#f2c14e':v===HARD?'#8c7f75':v===WALL?'#4b5a6e':'#1f2a44';ctx.fillRect(x,y,CELL-1,CELL-1);continue;}
     if(v===PASTA) ctx.drawImage(tiles.brick,x,y,CELL-1,CELL-1);
-    else if(v===HARD) ctx.drawImage(hp[i]===2?tiles.stone:tiles.stone1,x,y,CELL-1,CELL-1);
+    else if(v===HARD) ctx.drawImage(hp[i]>=2?tiles.stone:tiles.stone1,x,y,CELL-1,CELL-1);
+    else if(v===WALL) ctx.drawImage(tiles.wall,x-.5,y-.5,CELL,CELL);
     else { const l=hp[i],j=(3-l)*.8; const ox=l<3?(Math.random()-.5)*j:0;
       if(l<3){ctx.fillStyle=l===1?'rgba(255,90,40,.55)':'rgba(255,138,61,.3)';ctx.fillRect(x,y,CELL-1,CELL-1);}
       ctx.drawImage(tiles.mussel,x-1+ox,y-1,CELL+1,CELL+1); }
@@ -484,14 +501,18 @@ const LS_NAME='pastaman.name',LS_LOCAL='pastaman.localRank',LS_KEY='pastaman.pla
 function lsGet(k){try{return localStorage.getItem(k);}catch(e){return null;}}
 function lsSet(k,v){try{localStorage.setItem(k,v);}catch(e){}}
 function playerKey(){let k=lsGet(LS_KEY);if(!k||!/^[A-Za-z0-9-]{8,64}$/.test(k)){k=(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,12));lsSet(LS_KEY,k);}return k;}
-let rank=[],shared=false,lastRun=null,submitted=false,localMark=null;
+let boards=null,mine=null,shared=false,lastRun=null,submitted=false,localMark=null,period='day';
+const PNAME={day:'今日',week:'週間',month:'月間',year:'年間',all:'総合'};
+function periodStart(p){const J=9*3600e3,D=864e5,j=new Date(Date.now()+J),y=j.getUTCFullYear(),m=j.getUTCMonth(),d=j.getUTCDate();
+  const day=Date.UTC(y,m,d)-J;return {day,week:day-((j.getUTCDay()+6)%7)*D,month:Date.UTC(y,m,1)-J,year:Date.UTC(y,0,1)-J,all:0}[p];}
 function localRank(){try{return JSON.parse(lsGet(LS_LOCAL)||'[]');}catch(e){return [];}}
-function saveLocal(en){const a=localRank();a.push(en);a.sort((x,y)=>y.score-x.score);lsSet(LS_LOCAL,JSON.stringify(a.slice(0,30)));localMark=en.at;}
+function saveLocal(en){const a=localRank();a.push(en);a.sort((x,y)=>y.score-x.score);lsSet(LS_LOCAL,JSON.stringify(a.slice(0,200)));localMark=en.at;}
 function renderRank(){
-  const rows=shared?rank:localRank();
-  document.querySelectorAll('.rankTitle').forEach(h=>h.textContent=shared?'みんなのランキング':'この端末のランキング');
+  const rows=shared&&boards?(boards[period]||[]):localRank().filter(r=>(r.at||0)>=periodStart(period)).slice(0,50);
+  document.querySelectorAll('.rankTitle').forEach(h=>h.textContent=(shared?'みんなの':'この端末の')+PNAME[period]+'ランキング');
+  document.querySelectorAll('.tabs button').forEach(b=>b.setAttribute('aria-selected',String(b.dataset.p===period)));
   for(const id of ['rankList','rankList2']){const ol=document.getElementById(id);ol.textContent='';
-    if(!rows.length){const li=document.createElement('li');li.className='empty';li.textContent='まだ誰もいないよ。一番乗りしよう！';ol.appendChild(li);continue;}
+    if(!rows.length){const li=document.createElement('li');li.className='empty';li.textContent=PNAME[period]+'はまだ誰もいないよ。一番乗りしよう！';ol.appendChild(li);continue;}
     rows.forEach((r,i)=>{const li=document.createElement('li');
       if(shared?r.me:r.at===localMark) li.className='me';
       const n=document.createElement('span');n.className='n';n.textContent=(i+1);
@@ -499,10 +520,12 @@ function renderRank(){
       const sc=document.createElement('span');sc.className='sc';sc.textContent=Number(r.score||0).toLocaleString();
       li.append(n,nm,sc);ol.appendChild(li);});}
 }
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>{period=b.dataset.p;renderRank();}));
+function applyServer(j){ if(j&&j.ok&&j.boards){boards=j.boards;mine=j.mine||null;shared=true;return true;} return false; }
 async function fetchRank(){
   if(!RANK_URL){renderRank();return;}
   try{const r=await fetch(RANK_URL+'?key='+encodeURIComponent(playerKey()));const j=await r.json();
-    if(j&&j.ok&&Array.isArray(j.rows)){rank=j.rows;shared=true;}}catch(e){shared=false;}
+    applyServer(j);}catch(e){shared=false;}
   renderRank();
 }
 function onGameOver(){
@@ -524,8 +547,10 @@ document.getElementById('entry').addEventListener('submit',async e=>{
       const r=await fetch(RANK_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:playerKey(),name,score:en.score,stage:en.stage,combo:en.combo})});
       const j=await r.json();
       if(!j||!j.ok) throw new Error(j&&j.error||'error');
-      rank=j.rows||rank;shared=true;
-      msg(j.improved?'登録したよ！':'自己ベスト '+Number(j.best).toLocaleString()+' には届かず。名前は更新したよ');
+      applyServer(j);
+      const m=j.mine||{},parts=[];
+      for(const p of ['day','week','month','year','all']) if(m[p]&&m[p].rank) parts.push(PNAME[p]+' '+m[p].rank+'位');
+      msg((j.improved?'自己ベスト更新！ ':'登録したよ！ ')+parts.join(' ／ '));
       b.textContent='登録済み';renderRank();return;
     }catch(err){ saveLocal(en); shared=false; msg('通信できなかったので、この端末のランキングに保存したよ'); b.textContent='保存済み'; renderRank(); return; }
   }
