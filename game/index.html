@@ -87,6 +87,13 @@ canvas{display:block;width:100%;height:100%;border-radius:6px}
 .zukan summary:focus-visible{outline:2px solid var(--ink)}
 .zukan[open] summary{margin-bottom:10px}
 .zukan .items{margin:0 auto}
+.ctrl{text-align:left;display:flex;flex-direction:column;gap:6px}
+.ctrl h3{margin:4px 0 0;font-family:var(--display);font-weight:400;font-size:13px;color:var(--cheese);letter-spacing:.1em}
+.ctrl dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 10px;font-size:12.5px;line-height:1.5}
+.ctrl dt{color:var(--ink);font-weight:800;white-space:nowrap}
+.ctrl dd{margin:0;color:var(--muted);min-width:0}
+.ctrl p{margin:4px 0 0!important;font-size:12px!important;color:var(--muted)!important;max-width:none!important}
+.zukan+.zukan{margin-top:-6px}
 .items{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;text-align:left;font-size:13px;line-height:1.5;max-width:300px}
 .items b{font-family:var(--display);font-weight:400;color:var(--cheese);white-space:nowrap}
 .btn{font-family:var(--display);font-size:22px;color:var(--bg);background:var(--cheese);border:0;border-radius:999px;
@@ -134,7 +141,26 @@ canvas{display:block;width:100%;height:100%;border-radius:6px}
     </div>
     </details>
     <div class="endBtns"><button class="btn" id="contBtn" type="button" hidden>つづきから</button><button class="btn" id="go">スタート</button><button class="btn ghost" id="cheatBtn" type="button">チートモード</button></div>
-    <p class="small">指でスライドしてお皿を動かす・タップで発射</p>
+    <details class="zukan"><summary>操作方法</summary>
+    <div class="ctrl">
+      <h3>スマホ</h3>
+      <dl>
+        <dt>指を左右にスライド</dt><dd>お皿を動かす</dd>
+        <dt>タップ</dt><dd>ボールを発射。「もう1発！」が出ているときは追加で3発</dd>
+        <dt>長押し</dt><dd>バジルが効いている間、ボールを連射</dd>
+        <dt>右下の丸いボタン</dt><dd>必殺技。ゲージが満タンなら「パスタトーレ！」</dd>
+        <dt>左下の「音」</dt><dd>音のON／OFF</dd>
+      </dl>
+      <h3>パソコン</h3>
+      <dl>
+        <dt>マウスを動かす ／ ← →</dt><dd>お皿を動かす</dd>
+        <dt>クリック ／ スペース</dt><dd>ボールを発射・もう1発</dd>
+        <dt>押しっぱなし</dt><dd>バジル中の連射</dd>
+        <dt>Z キー</dt><dd>必殺技</dd>
+      </dl>
+      <p>ゲージはブロックを壊すと溜まる。途中で撃つと溜まった分だけボールが出て、満タンで撃つと大量のボールが出る。</p>
+    </div>
+    </details>
     <div class="endBtns"><button class="btn ghost" id="showRank">ランキングを見る</button><button class="btn ghost" id="setBtn" type="button">設定</button><button class="btn ghost muteBtn" id="muteT" type="button" aria-pressed="false">音 ON</button></div>
     <a class="home" href="../">← パスタマン公式HPへ</a>
   </div>
@@ -867,7 +893,8 @@ function toLogical(e){const r=cv.getBoundingClientRect();return (e.clientX-r.lef
 cv.addEventListener('pointerdown',e=>{targetX=toLogical(e);pdown=true;launch();});
 for(const ev of ['pointerup','pointercancel','blur']) addEventListener(ev,()=>{pdown=false;});
 cv.addEventListener('pointermove',e=>{targetX=toLogical(e);});
-addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;if(e.key==='ArrowLeft')targetX=px-40;if(e.key==='ArrowRight')targetX=px+40;if(e.key===' ')launch();if(e.key==='z'||e.key==='Z')special();});
+addEventListener('keyup',e=>{if(e.key===' ')pdown=false;});
+addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;if(e.key==='ArrowLeft')targetX=px-40;if(e.key==='ArrowRight')targetX=px+40;if(e.key===' '){e.preventDefault();if(!e.repeat)launch();pdown=true;}if(e.key==='z'||e.key==='Z')special();});
 document.getElementById('sp').addEventListener('click',special);
 document.querySelectorAll('.muteBtn').forEach(b=>b.addEventListener('click',()=>{initAudio();setMuted(!muted);}));
 setMuted(muted);
