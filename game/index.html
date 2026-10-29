@@ -606,7 +606,12 @@ function update(dt){
       let nx=b.x+b.vx*h,ny=b.y+b.vy*h,bnc=false;
       if(nx<BR){nx=BR;b.vx=Math.abs(b.vx);sfx.wall();bnc=true;} else if(nx>W-BR){nx=W-BR;b.vx=-Math.abs(b.vx);sfx.wall();bnc=true;}
       if(ny<TOP-14+BR){ny=TOP-14+BR;b.vy=Math.abs(b.vy);sfx.wall();bnc=true;}
-      const cx=Math.floor(nx/CELL),cy=Math.floor((ny-TOP)/CELL);
+      // collide at the ball's leading edge (and, for mini meatballs, both shoulders) so the hit matches what is drawn
+      const sp=Math.hypot(b.vx,b.vy)||1,ux=b.vx/sp,uy=b.vy/sp,rr=b.mini?BR*1.5:b.mb?BR*2:BR*.8;
+      let cx=Math.floor((nx+ux*rr)/CELL),cy=Math.floor((ny+uy*rr-TOP)/CELL);
+      if(b.mini&&!(cy>=0&&cy<ROWS&&cx>=0&&cx<COLS&&grid[cy*COLS+cx])){
+        for(const sg of [1,-1]){const qx=nx+ux*rr*.6-uy*rr*sg,qy=ny+uy*rr*.6+ux*rr*sg,qc=Math.floor(qx/CELL),qr=Math.floor((qy-TOP)/CELL);
+          if(qr>=0&&qr<ROWS&&qc>=0&&qc<COLS&&grid[qr*COLS+qc]){cx=qc;cy=qr;break;}} }
       if(cy>=0&&cy<ROWS&&cx>=0&&cx<COLS&&grid[cy*COLS+cx]){
         const i=cy*COLS+cx;
         if(b.mini){ for(const [dx,dy] of [[0,0],[1,0],[-1,0],[0,1],[0,-1]]){const cc=cx+dx,rr=cy+dy;if(cc<0||cc>=COLS||rr<0||rr>=ROWS)continue;const j=rr*COLS+cc;if(isBrk(grid[j])) hit(j,true,'#c8683a');}
@@ -614,7 +619,7 @@ function update(dt){
         if(b.p>0&&grid[i]!==WALL){ hit(i,true,'#ff6b3d'); b.x=nx;b.y=ny; }
         else if(F('ikasumi')&&inked[i]&&grid[i]!==WALL){ hit(i,true,'#2a2d44'); b.x=nx;b.y=ny; }
         else{
-          const ocx=Math.floor(b.x/CELL),ocy=Math.floor((b.y-TOP)/CELL);
+          const ocx=Math.floor((b.x+ux*rr)/CELL),ocy=Math.floor((b.y+uy*rr-TOP)/CELL);
           if(ocx!==cx&&ocy===cy) b.vx=-b.vx; else if(ocy!==cy&&ocx===cx) b.vy=-b.vy; else {b.vx=-b.vx;b.vy=-b.vy;}
           hit(i,false); bnc=true;
         }
