@@ -761,7 +761,7 @@ function update(dt){
   for(let i=texts.length-1;i>=0;i--){const x=texts[i];x.life-=dt;if(!x.big)x.y-=30*dt;if(x.life<=0)texts.splice(i,1);}
   shake*=Math.pow(.02,dt); flash=Math.max(0,flash-dt*2.2);
   if(balls.length>200) feverT=Math.min(1,feverT+dt*2); else feverT=Math.max(0,feverT-dt);
-  if(mode==='bonus'&&clearT===0&&running){ bonusT-=dt; if(bonusT<=0){ bonusT=0; clearT=2.5; bigText('タイムアップ!','#fff4e0',2,34); tone(330,.3,'triangle',.08); } }
+  if(mode==='bonus'&&clearT===0&&running){ bonusT-=dt; if(bonusT<=0){ bonusT=0; clearT=2.5; bonusWon=true; bigText('タイムアップ!','#fff4e0',2,34); tone(330,.3,'triangle',.08); } }
   if(mode==='last'&&running&&clearT===0){ spawnT-=dt; if(spawnT<=0){ spawnT=Math.max(1.4,3.2-(t%600)/400); lastSpawn(2); } }
   if(revealT>0) revealT-=dt;
   updateShots(dt);
