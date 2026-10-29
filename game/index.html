@@ -210,7 +210,7 @@ const FORMS=[
   {id:'arrabbiata',name:'アラビアータ',item:'chili',col:'#ff5a3a',desc:'全部のボールがずっと貫通球'},
   {id:'kinoko',name:'きのこ',item:'mushroom',col:'#7fd36b',desc:'ボールがずっとブロックに吸い寄せられる'},
   {id:'pescatore',name:'ペスカトーレ',item:'mussel',col:'#ff8a3d',desc:'ボールが当たるたびに小さく爆発'},
-  {id:'ikasumi',name:'イカスミ',item:'squid',col:'#aab4dc',desc:'当てたまわりに墨。硬いブロックも1発'},
+  {id:'ikasumi',name:'イカスミ',item:'squid',col:'#aab4dc',desc:'当てると墨が広がる。墨の上はボールがすり抜けて壊す'},
   {id:'tarako',name:'たらこ',item:'mentai',col:'#ff8fa3',desc:'分身パスタマンがずっといる'},
   {id:'peperoncino',name:'ペペロンチーノ',item:'garlic',col:'#f3e7c9',desc:'にんにくガードがずっと出ている'},
 ];
@@ -354,7 +354,9 @@ const CALLS=[[30,'ボーノ!'],[80,'ベリッシモ!!'],[150,'マンマミーア
 function hit(i,force,col){
   if(!grid[i]) return;
   if(grid[i]===WALL){ if(blipBudget>0&&Math.random()<.3){blipBudget--;tone(2400,.03,'triangle',.015);} return; }
-  if(F('ikasumi')&&curBall){ const c=i%COLS,r=(i/COLS)|0; for(const [dx,dy] of [[0,0],[1,0],[-1,0],[0,1],[0,-1]]){const cc=c+dx,rr=r+dy;if(cc<0||cc>=COLS||rr<0||rr>=ROWS)continue;inkCell(rr*COLS+cc);} }
+  if(F('ikasumi')&&curBall){ const c=i%COLS,r=(i/COLS)|0;
+    for(let dy=-2;dy<=2;dy++)for(let dx=-2;dx<=2;dx++){if(dx*dx+dy*dy>5)continue;const cc=c+dx,rr=r+dy;if(cc<0||cc>=COLS||rr<0||rr>=ROWS)continue;inkCell(rr*COLS+cc);}
+    if(Math.random()<.18&&inks.length<64){const [x,y]=cellXY(i),a0=Math.random()*.8;for(let k=0;k<8;k++){const a=a0+k*Math.PI/4;inks.push({x,y,vx:Math.cos(a)*260,vy:Math.sin(a)*260,life:.55});} if(blipBudget>0){blipBudget--;noise(.12,.06);}} }
   if(inked[i]) force=true;
   if(!force && --hp[i]>0){ blip(combo); const [x,y]=cellXY(i); if(grid[i]===MUSSEL){ burst(x,y,'#3b4a6b',3,60); if(atlasOK) fx('bStrong',x,y,24,.22,.8);} return; }
   destroy(i,col);
@@ -514,6 +516,7 @@ function update(dt){
       if(cy>=0&&cy<ROWS&&cx>=0&&cx<COLS&&grid[cy*COLS+cx]){
         const i=cy*COLS+cx;
         if(b.p>0&&grid[i]!==WALL){ hit(i,true,'#ff6b3d'); b.x=nx;b.y=ny; }
+        else if(F('ikasumi')&&inked[i]&&grid[i]!==WALL){ hit(i,true,'#2a2d44'); b.x=nx;b.y=ny; }
         else{
           const ocx=Math.floor(b.x/CELL),ocy=Math.floor((b.y-TOP)/CELL);
           if(ocx!==cx&&ocy===cy) b.vx=-b.vx; else if(ocy!==cy&&ocx===cx) b.vy=-b.vy; else {b.vx=-b.vx;b.vy=-b.vy;}
