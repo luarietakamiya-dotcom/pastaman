@@ -156,7 +156,7 @@ canvas{display:block;width:100%;height:100%;border-radius:6px}
         <dt>マウスを動かす ／ ← → ／ A D</dt><dd>お皿を動かす（キーは押しっぱなしで加速。マウスは画面の外に出ても追いかける）</dd>
         <dt>クリック ／ スペース</dt><dd>ボールを発射・もう1発</dd>
         <dt>押しっぱなし</dt><dd>バジル中の連射</dd>
-        <dt>Z キー</dt><dd>必殺技</dd>
+        <dt>Z キー ／ ホイールクリック</dt><dd>必殺技</dd>
       </dl>
       <p>ゲージはブロックを壊すと溜まる。途中で撃つと溜まった分だけボールが出て、満タンで撃つと大量のボールが出る。</p>
     </div>
@@ -919,7 +919,10 @@ function fillTitle(){
 let last=performance.now();
 function frame(now){const dt=Math.min(.033,(now-last)/1000);last=now;if(running&&!paused)update(dt);draw();requestAnimationFrame(frame);}
 function toLogical(e){const r=cv.getBoundingClientRect();return (e.clientX-r.left)/r.width*W;}
-cv.addEventListener('pointerdown',e=>{targetX=toLogical(e);pdown=true;launch();});
+cv.addEventListener('pointerdown',e=>{ if(e.pointerType==='mouse'&&e.button===1){ e.preventDefault(); special(); return; } if(e.pointerType==='mouse'&&e.button!==0) return; targetX=toLogical(e);pdown=true;launch();});
+window.addEventListener('mousedown',e=>{ if(e.button===1&&running&&e.target!==cv){ e.preventDefault(); special(); } });
+cv.addEventListener('auxclick',e=>e.preventDefault());
+cv.addEventListener('mousedown',e=>{if(e.button===1)e.preventDefault();});
 for(const ev of ['pointerup','pointercancel','blur']) addEventListener(ev,()=>{pdown=false;});
 addEventListener('pointermove',e=>{ if(e.pointerType==='mouse'||e.target===cv||pdown){ targetX=Math.max(0,Math.min(W,toLogical(e))); } });
 cv.addEventListener('pointerdown',e=>{try{cv.setPointerCapture(e.pointerId);}catch(_){}});
