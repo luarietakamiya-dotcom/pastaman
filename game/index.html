@@ -703,6 +703,12 @@ function heroFrame(vx){
 }
 function formPose(n){ if(n==='ko'||n==='hit') return n; if(n.startsWith('jump')||n==='storm') return 'jump';
   if(n.startsWith('run')) return Math.abs(pvx)>520?'dash':'run'+(Math.floor(runD/22)%3); return Math.floor(t*2.2)%2?'idle2':'idle'; }
+// clone: pink-tinted copy drawn at half opacity (pre-tinted offscreen so it reads as a ghost even where canvas alpha/shadow behave differently)
+const ghostCache=new Map();
+function drawGhost(img,m,dx,dy,dw,dh){ const key=(img.src||'').length+':'+m[0]+','+m[1]; let c=ghostCache.get(key);
+  if(!c){ c=document.createElement('canvas');c.width=m[2];c.height=m[3];const g=c.getContext('2d');g.drawImage(img,m[0],m[1],m[2],m[3],0,0,m[2],m[3]);
+    g.globalCompositeOperation='source-atop';g.fillStyle='rgba(255,150,180,.55)';g.fillRect(0,0,m[2],m[3]);if(ghostCache.size>200)ghostCache.clear();ghostCache.set(key,c);}
+  const a=ctx.globalAlpha;ctx.globalAlpha=.5;ctx.drawImage(c,dx,dy,dw,dh);ctx.globalAlpha=a; }
 function drawHero(x,vx,clone){
   const fim=cheat&&FORM_IMG[form];
   if(fim&&fim.complete&&fim.naturalWidth){ const n0=heroFrame(vx);let n=formPose(n0);if(n==='dash') n=vx>0?'dashR':'dashL';
@@ -710,8 +716,7 @@ function drawHero(x,vx,clone){
     const flip=n.startsWith('run')?vx<0:(n.startsWith('dash')?false:clone);
     const jy=n==='jump'?-Math.sin(Math.PI*(1-storm/stormMax))*14:0, sx=n==='hit'&&stunT>0?(Math.random()-.5)*3:0;
     ctx.save();ctx.translate(x+sx,PY-7+jy+(fixed?h*.35:0));if(flip)ctx.scale(-1,1);
-    if(clone){ctx.shadowColor='#ff8fa3';ctx.shadowBlur=14;} else if(slowT>0){ctx.shadowColor='#7ab8ff';ctx.shadowBlur=16;}
-    ctx.drawImage(fim,m[0],m[1],m[2],m[3],-pcx*k,0,w,h);ctx.restore();return; }
+    if(clone) drawGhost(fim,m,-pcx*k,0,w,h); else { if(slowT>0){ctx.shadowColor='#7ab8ff';ctx.shadowBlur=16;} ctx.drawImage(fim,m[0],m[1],m[2],m[3],-pcx*k,0,w,h);} ctx.restore();return; }
   const n=heroFrame(vx),m=SP[n];
   const fixed=(n==='storm'||n==='hit'||n==='ko');
   const shakeX=n==='hit'&&stunT>0?(Math.random()-.5)*3:0;
@@ -720,9 +725,8 @@ function drawHero(x,vx,clone){
   const flip=n.startsWith('run')?vx>0:(clone);
   const jy=(n==='jumpUp'||n==='jumpDown')?-Math.sin(Math.PI*(1-storm/stormMax))*14:0;
   ctx.save();ctx.translate(x+shakeX,PY-7+jy);if(flip)ctx.scale(-1,1);
-  if(clone){ctx.shadowColor='#ff8fa3';ctx.shadowBlur=14;}
   else if(slowT>0){ctx.shadowColor='#7ab8ff';ctx.shadowBlur=16;}
-  ctx.drawImage(ATLAS,m[0],m[1],m[2],m[3],-pcx*k,0,w,h);
+  if(clone) drawGhost(ATLAS,m,-pcx*k,0,w,h); else ctx.drawImage(ATLAS,m[0],m[1],m[2],m[3],-pcx*k,0,w,h);
   ctx.restore();
 }
 function drawFallbackHero(x){ // before the sprite sheet decodes
@@ -803,7 +807,7 @@ function draw(){
     if(T&&tiles.garlic){ for(let x=10;x<W;x+=60) ctx.drawImage(tiles.garlic,x,y-7,14,14);} }
   // heroes
   if(atlasOK){
-    if(cloneT>0){ const blink=cloneT<3&&Math.floor(t*8)%2; if(!blink){ctx.globalAlpha=.42;drawHero(W-px,-pvx,true);ctx.globalAlpha=1;} }
+    if(cloneT>0){ const blink=cloneT<3&&Math.floor(t*8)%2; if(!blink){drawHero(W-px,-pvx,true);} }
     drawHero(px,pvx,false);
   } else { drawFallbackHero(px); if(cloneT>0) drawFallbackHero(W-px); }
   // HUD
