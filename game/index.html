@@ -43,6 +43,7 @@ canvas{display:block;width:100%;height:100%;border-radius:6px}
 .entry input{flex:1 1 140px;min-width:0;font:500 16px var(--body);color:var(--bg);background:var(--ink);border:2px solid var(--cheese);border-radius:10px;padding:9px 12px;-webkit-user-select:text;user-select:text;touch-action:auto}
 .entry input:focus-visible{outline:3px solid var(--tomato);outline-offset:2px}
 .btn.mini{font-size:15px;padding:10px 18px;box-shadow:0 4px 0 #b8862a}
+.endBtns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center}
 .btn.ghost{background:transparent;color:var(--cheese);box-shadow:none;border:2px solid var(--cheese);font-size:15px;padding:8px 20px}
 .btn:disabled{opacity:.5;cursor:default}
 .rankbox{width:100%;max-width:320px;display:flex;flex-direction:column;gap:6px}
@@ -118,7 +119,7 @@ canvas{display:block;width:100%;height:100%;border-radius:6px}
     </form>
     <p class="small" id="entryMsg"></p>
     <div class="rankbox"><h2 class="rankTitle">ランキング</h2><div class="tabs" role="tablist" aria-label="ランキングの期間"><button type="button" role="tab" data-p="day">今日</button><button type="button" role="tab" data-p="week">週間</button><button type="button" role="tab" data-p="month">月間</button><button type="button" role="tab" data-p="year">年間</button><button type="button" role="tab" data-p="all">総合</button></div><ol class="rank" id="rankList"></ol></div>
-    <button class="btn" id="again" type="button">もう一回</button>
+    <div class="endBtns"><button class="btn" id="again" type="button">もう一回</button><button class="btn ghost" id="toTitle" type="button">タイトルへ</button></div>
   </div>
   <div class="overlay" id="rankView" hidden>
     <div class="rankbox"><h2 class="rankTitle">ランキング</h2><div class="tabs" role="tablist" aria-label="ランキングの期間"><button type="button" role="tab" data-p="day">今日</button><button type="button" role="tab" data-p="week">週間</button><button type="button" role="tab" data-p="month">月間</button><button type="button" role="tab" data-p="year">年間</button><button type="button" role="tab" data-p="all">総合</button></div><ol class="rank" id="rankList2"></ol></div>
@@ -740,6 +741,9 @@ if(location.hash==='#ranking'){document.getElementById('rankView').hidden=false;
 
 document.getElementById('go').addEventListener('click',start);
 document.getElementById('again').addEventListener('click',start);
+document.getElementById('toTitle').addEventListener('click',()=>{document.getElementById('over').hidden=true;document.getElementById('rankView').hidden=true;
+  running=false;bgm(false);mode='normal';stageN=1;newStage();balls=[];for(let k=0;k<30;k++)addBall(px,PY-20,-Math.PI/2+(Math.random()-.5)*2);
+  document.getElementById('title').hidden=false;});
 resize();stageGen(1);balls=[];parts=[];texts=[];drops=[];
 for(let k=0;k<40;k++)addBall(Math.random()*W,PY-60-Math.random()*100,-Math.PI/2+(Math.random()-.5)*2);
 const attract=()=>{ if(running) return; update(1/60); if(balls.length<20) for(let k=0;k<20;k++)addBall(px,PY-20,-Math.PI/2+(Math.random()-.5)*2); };
