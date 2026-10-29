@@ -52,6 +52,12 @@ canvas{display:block;width:100%;height:100%;border-radius:6px}
 .formCard span{font-size:10.5px;line-height:1.35;color:var(--muted);min-width:0}
 .formCard:hover,.formCard:focus-visible{border-color:var(--fc,#ffd84a);outline:none}
 .cheatNote{color:#ff8fa3!important;font-size:13px!important}
+.sets{display:grid;grid-template-columns:auto 1fr 2.4em;gap:14px 12px;align-items:center;width:100%;max-width:300px;text-align:left}
+.sets label{font-family:var(--display);color:var(--cheese);font-size:14px}
+.sets input{width:100%;accent-color:var(--tomato);touch-action:auto}
+.sets output{font-variant-numeric:tabular-nums;color:var(--ink);text-align:right}
+#setView{background:var(--bg)}
+.btn.muteBtn[aria-pressed="true"]{border-color:var(--tomato);color:#ff8a7a}
 .endBtns{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center}
 .btn.ghost{background:transparent;color:var(--cheese);box-shadow:none;border:2px solid var(--cheese);font-size:15px;padding:8px 20px}
 .btn:disabled{opacity:.5;cursor:default}
@@ -70,6 +76,12 @@ canvas{display:block;width:100%;height:100%;border-radius:6px}
 .rank li .sc{font-family:var(--display);color:var(--cheese);font-variant-numeric:tabular-nums}
 .rank li.me{background:rgba(232,64,42,.25);border-radius:6px}
 .rank .empty{display:block;color:var(--muted);text-align:center;padding:12px}
+.zukan{width:100%;max-width:300px}
+.zukan summary{cursor:pointer;font-family:var(--display);color:var(--cheese);font-size:15px;list-style:none;padding:6px;border:2px solid #4a3028;border-radius:999px}
+.zukan summary::-webkit-details-marker{display:none}
+.zukan summary:focus-visible{outline:2px solid var(--ink)}
+.zukan[open] summary{margin-bottom:10px}
+.zukan .items{margin:0 auto}
 .items{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;text-align:left;font-size:13px;line-height:1.5;max-width:300px}
 .items b{font-family:var(--display);font-weight:400;color:var(--cheese);white-space:nowrap}
 .btn{font-family:var(--display);font-size:22px;color:var(--bg);background:var(--cheese);border:0;border-radius:999px;
@@ -96,12 +108,13 @@ canvas{display:block;width:100%;height:100%;border-radius:6px}
 <div id="wrap"><div id="stage">
   <canvas id="c" aria-label="パスタマン ブレイカーのゲーム画面"></canvas>
   <button id="sp" aria-label="必殺技 パスタトーレ"><span>必殺<br>技</span></button>
-  <button id="mute">音 ON</button>
+  <button id="mute" class="muteBtn" type="button" aria-pressed="false">音 ON</button>
   <div class="overlay" id="title">
     <canvas id="heroC" class="heroimg" hidden aria-hidden="true"></canvas>
     <canvas id="logoC" class="logoimg" hidden role="img" aria-label="パスタマン"></canvas>
     <h1 id="titleText">パスタマン<br>ブレイカー</h1>
     <p class="sub" id="subT" hidden>ブレイカー</p>
+    <details class="zukan"><summary>アイテム図鑑</summary>
     <div class="items">
       <b>トマト</b><span>ボールが3発に増える</span>
       <b>唐辛子</b><span>当たったボールが貫通球になる</span>
@@ -114,9 +127,10 @@ canvas{display:block;width:100%;height:100%;border-radius:6px}
       <b>にんにく</b><span>しばらくお皿の下に壁ができて落ちない</span>
       <b>イカ</b><span>8方向に墨を飛ばす。墨がついたブロックは1発で壊れる</span>
     </div>
+    </details>
     <div class="endBtns"><button class="btn" id="go">スタート</button><button class="btn ghost" id="cheatBtn" type="button">チートモード</button></div>
     <p class="small">指でスライドしてお皿を動かす・タップで発射</p>
-    <button class="btn ghost" id="showRank">ランキングを見る</button>
+    <div class="endBtns"><button class="btn ghost" id="showRank">ランキングを見る</button><button class="btn ghost" id="setBtn" type="button">設定</button><button class="btn ghost muteBtn" id="muteT" type="button" aria-pressed="false">音 ON</button></div>
     <a class="home" href="../">← パスタマン公式HPへ</a>
   </div>
   <div class="overlay" id="over" hidden>
@@ -137,6 +151,17 @@ canvas{display:block;width:100%;height:100%;border-radius:6px}
     <p class="small">フォームごとに打てるボールが変わるよ。チートモードのスコアはランキングに載らない。</p>
     <div class="forms" id="formList"></div>
     <button class="btn ghost" id="formBack" type="button">もどる</button>
+  </div>
+  <div class="overlay" id="setView" hidden>
+    <h2 class="formH">設定</h2>
+    <div class="sets">
+      <label for="vBgm">BGM</label><input type="range" id="vBgm" min="0" max="100" step="5"><output id="oBgm"></output>
+      <label for="vSe">効果音</label><input type="range" id="vSe" min="0" max="100" step="5"><output id="oSe"></output>
+      <label for="vVoice">ボイス</label><input type="range" id="vVoice" min="0" max="100" step="5"><output id="oVoice"></output>
+    </div>
+    <button class="btn ghost muteBtn" id="muteS" type="button" aria-pressed="false">音 ON</button>
+    <p class="small">50がふつうの音量。設定はこのブラウザに保存されるよ。</p>
+    <button class="btn" id="setBack" type="button">もどる</button>
   </div>
   <div class="overlay" id="rankView" hidden>
     <div class="rankbox"><h2 class="rankTitle">ランキング</h2><div class="tabs" role="tablist" aria-label="ランキングの期間"><button type="button" role="tab" data-p="day">今日</button><button type="button" role="tab" data-p="week">週間</button><button type="button" role="tab" data-p="month">月間</button><button type="button" role="tab" data-p="year">年間</button><button type="button" role="tab" data-p="all">総合</button></div><ol class="rank" id="rankList2"></ol></div>
@@ -162,7 +187,10 @@ function resize(){const r=cv.getBoundingClientRect();const d=Math.min(window.dev
 addEventListener('resize',resize);
 
 // ---------- audio ----------
-let ac=null,master=null,muted=false,blipBudget=0;
+let ac=null,master=null,muted=false,blipBudget=0,sfxBoost=null;
+const VOL={bgm:50,se:50,voice:50};
+try{const v=JSON.parse(localStorage.getItem('pastaman.vol')||'null');if(v){for(const k in VOL) if(typeof v[k]==='number') VOL[k]=Math.max(0,Math.min(100,v[k]));if(v.muted) muted=true;}}catch(e){}
+function saveVol(){try{localStorage.setItem('pastaman.vol',JSON.stringify({...VOL,muted}));}catch(e){}}
 function initAudio(){ if(ac) return; try{ac=new (window.AudioContext||window.webkitAudioContext)();master=ac.createGain();master.gain.value=1;master.connect(ac.destination);}catch(e){} }
 function tone(f,dur=.08,type='square',vol=.05,when=0){ if(!ac||muted||!running) return; const t=ac.currentTime+when;
   const o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f,t);
@@ -172,9 +200,9 @@ function noise(dur=.4,vol=.25){ if(!ac||muted||!running) return; const t=ac.curr
   const s=ac.createBufferSource(),g=ac.createGain(),f=ac.createBiquadFilter();f.type='lowpass';f.frequency.value=900;
   s.buffer=buf;g.gain.value=vol;s.connect(f);f.connect(g);g.connect(master);s.start(t);}
 // ---- synthesized sound effects (no audio files). Each effect has a cooldown so hundreds of balls don't overload it. ----
-let nzBuf=null,comp=null;const sfxLast={};
-function sfxOK(name,cd){ if(!ac||muted||!running) return false; const t=ac.currentTime; if(sfxLast[name]&&t-sfxLast[name]<cd) return false; sfxLast[name]=t; return true; }
-function out(){ if(!comp){ comp=ac.createDynamicsCompressor();comp.threshold.value=-14;comp.knee.value=10;comp.ratio.value=6;comp.attack.value=.003;comp.release.value=.15;const boost=ac.createGain();boost.gain.value=2.2;comp.connect(boost);boost.connect(master);} return comp; }
+let nzBuf=null,comp=null,sfxPreview=false;const sfxLast={};
+function sfxOK(name,cd){ if(!ac||muted||(!running&&!sfxPreview)) return false; const t=ac.currentTime; if(sfxLast[name]&&t-sfxLast[name]<cd) return false; sfxLast[name]=t; return true; }
+function out(){ if(!comp){ comp=ac.createDynamicsCompressor();comp.threshold.value=-14;comp.knee.value=10;comp.ratio.value=6;comp.attack.value=.003;comp.release.value=.15;const boost=ac.createGain();sfxBoost=boost;boost.gain.value=2.2*VOL.se/50;comp.connect(boost);boost.connect(master);} return comp; }
 function osc(type,f0,f1,dur,vol,when=0,dest){ const t=ac.currentTime+when,o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f0,t);
   if(f1&&f1!==f0) o.frequency.exponentialRampToValueAtTime(Math.max(20,f1),t+dur);g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.004);
   g.gain.exponentialRampToValueAtTime(.0001,t+dur);o.connect(g);g.connect(dest||out());o.start(t);o.stop(t+dur+.03);}
@@ -210,18 +238,20 @@ const voiceEl=VOICE_SRC?new Audio(VOICE_SRC):null;
 // music: 8-bit for stages, jazz for bonus stages, main-theme climax while a full special runs
 const MUS={normal:new Audio(BGM8_SRC),bonus:new Audio(JAZZ_SRC),special:new Audio(THEME_SRC)};
 MUS.normal.loop=true;MUS.bonus.loop=true;
-const SPECIAL_FROM=103, JAZZ_FROM=93.2, MVOL=.24;let mTrack=null,spT=0,duckT=0;
-for(const k in MUS){MUS[k].preload='auto';MUS[k].volume=MVOL;}
+const SPECIAL_FROM=103, JAZZ_FROM=93.2;let MVOL=.24*VOL.bgm/50;let mTrack=null,spT=0,duckT=0;
+for(const k in MUS){MUS[k].preload='auto';MUS[k].volume=Math.min(1,MVOL);}
 MUS.special.addEventListener('ended',()=>{ if(spT>0){spT=0;playTrack(trackFor());} });
 function trackFor(){return mode==='bonus'?'bonus':'normal';}
 function playTrack(n,from){ for(const k in MUS) if(k!==n){try{MUS[k].pause();}catch(e){}}
   const a=MUS[n];mTrack=n;if(!a)return;try{if(from!=null)a.currentTime=from;}catch(e){}
-  if(!muted&&running){a.volume=duckT>0?.08:MVOL;a.play().catch(()=>{});} }
-function shout(){ if(muted) return;
-  if(voiceEl){ try{voiceEl.currentTime=0;voiceEl.play().catch(()=>{}); duckT=1.7; const a=MUS[mTrack]; if(a) a.volume=.08; }catch(e){} return; }
-  try{ const u=new SpeechSynthesisUtterance('パスタトーレ！'); u.lang='ja-JP'; u.rate=1.15; u.pitch=1.3; u.volume=1; speechSynthesis.cancel(); speechSynthesis.speak(u);}catch(e){} }
+  if(!muted&&running){a.volume=duckT>0?Math.min(.08,MVOL):Math.min(1,MVOL);a.play().catch(()=>{});} }
+function shout(){ if(muted||VOL.voice<=0) return;
+  if(voiceEl){ try{voiceEl.volume=Math.min(1,VOL.voice/50);voiceEl.currentTime=0;voiceEl.play().catch(()=>{}); duckT=1.7; const a=MUS[mTrack]; if(a) a.volume=Math.min(.08,MVOL); }catch(e){} return; }
+  try{ const u=new SpeechSynthesisUtterance('パスタトーレ！'); u.lang='ja-JP'; u.rate=1.15; u.pitch=1.3; u.volume=Math.min(1,VOL.voice/50); speechSynthesis.cancel(); speechSynthesis.speak(u);}catch(e){} }
 function bgm(on){ if(!on||muted){ for(const k in MUS){try{MUS[k].pause();}catch(e){}} if(!on) spT=0; return; } playTrack(spT>0?'special':trackFor()); }
-function musicTick(dt){ if(duckT>0){duckT-=dt; if(duckT<=0){const a=MUS[mTrack]; if(a) a.volume=MVOL;}}
+function applyVol(){ MVOL=.24*VOL.bgm/50; const a=MUS[mTrack]; if(a&&duckT<=0) a.volume=Math.min(1,MVOL); if(sfxBoost) sfxBoost.gain.value=2.2*VOL.se/50; }
+function setMuted(m){ muted=m; saveVol(); document.querySelectorAll('.muteBtn').forEach(b=>{b.textContent=muted?'音 OFF':'音 ON';b.setAttribute('aria-pressed',String(muted));}); bgm(running); }
+function musicTick(dt){ if(duckT>0){duckT-=dt; if(duckT<=0){const a=MUS[mTrack]; if(a) a.volume=Math.min(1,MVOL);}}
   if(spT>0){spT-=dt; if(spT<=0) playTrack(trackFor());}
   else if(running&&mTrack!==trackFor()) playTrack(trackFor(),trackFor()==='bonus'?JAZZ_FROM:undefined); }
 const PENTA=[0,2,4,7,9];
@@ -777,7 +807,16 @@ for(const ev of ['pointerup','pointercancel','blur']) addEventListener(ev,()=>{p
 cv.addEventListener('pointermove',e=>{targetX=toLogical(e);});
 addEventListener('keydown',e=>{if(e.target&&e.target.tagName==='INPUT')return;if(e.key==='ArrowLeft')targetX=px-40;if(e.key==='ArrowRight')targetX=px+40;if(e.key===' ')launch();if(e.key==='z'||e.key==='Z')special();});
 document.getElementById('sp').addEventListener('click',special);
-document.getElementById('mute').addEventListener('click',e=>{muted=!muted;e.currentTarget.textContent=muted?'音 OFF':'音 ON';bgm(running);});
+document.querySelectorAll('.muteBtn').forEach(b=>b.addEventListener('click',()=>{initAudio();setMuted(!muted);}));
+setMuted(muted);
+(function(){const map=[['vBgm','oBgm','bgm'],['vSe','oSe','se'],['vVoice','oVoice','voice']];
+  for(const [i,o,k] of map){const inp=document.getElementById(i),ou=document.getElementById(o);inp.value=VOL[k];ou.textContent=VOL[k];
+    inp.addEventListener('input',()=>{VOL[k]=+inp.value;ou.textContent=inp.value;applyVol();saveVol();
+      if(k==='se'){initAudio();if(ac&&ac.state==='suspended')ac.resume();out();applyVol();sfxPreview=true;sfxLast.plate=0;sfx.plate();sfxPreview=false;}});
+    inp.addEventListener('change',()=>{ if(k==='voice'&&voiceEl&&!muted&&VOL.voice>0){try{voiceEl.volume=Math.min(1,VOL.voice/50);voiceEl.currentTime=0;voiceEl.play().catch(()=>{});}catch(e){}}
+      if(k==='bgm'&&!running&&!muted&&VOL.bgm>0){const a=MUS.normal;try{a.volume=Math.min(1,MVOL);a.play().catch(()=>{});clearTimeout(window.__bgmPrev);window.__bgmPrev=setTimeout(()=>{if(!running)a.pause();},2500);}catch(e){}} });}})();
+document.getElementById('setBtn').addEventListener('click',()=>{document.getElementById('setView').hidden=false;});
+document.getElementById('setBack').addEventListener('click',()=>{document.getElementById('setView').hidden=true;if(!running){try{MUS.normal.pause();}catch(e){}}});
 function start(e){ if(e&&e.currentTarget&&e.currentTarget.id==='go') cheat=false;
   document.getElementById('formView').hidden=true;initAudio();if(ac&&ac.state==='suspended')ac.resume();document.getElementById('title').hidden=true;document.getElementById('over').hidden=true;reset();running=true;spT=0;playTrack('normal',0);}
 
