@@ -478,7 +478,7 @@ function miniBlast(i){ const cx=i%COLS,cy=(i/COLS)|0,[x,y]=cellXY(i); booms.push
     const j=r*COLS+c;if(isBrk(grid[j])&&grid[j]!==HARD) queue.push({i:j,at:t+d*.03,col:'#ff8a3d'});}
   sfx.pop(); }
 function destroy(i,col,chain){
-  const type=grid[i]; if(!isBrk(type)) return; grid[i]=0; remain--; inked[i]=0; lastBreak=t; relaunch=false;
+  const type=grid[i]; if(!isBrk(type)) return; grid[i]=0; remain--; inked[i]=0; lastBreak=t; relaunch=false; if(curBall) curBall.wb=0;
   if(cheat&&curBall&&!chain){ if(form==='carbonara'){ const [mx,my]=cellXY(i); melt(mx,my,9); } else if(form==='pescatore') miniBlast(i); }
   combo++; comboT=.7; if(combo>maxCombo) maxCombo=combo;
   const mult=1+Math.floor(combo/20);
@@ -589,6 +589,10 @@ function nearestBrk(x,y){ if(!brkList){brkList=[];for(let i=0;i<grid.length;i++)
 function onBounce(b){
   if(b.mini) return true;
   if(b.mb&&!(b.mbCD>0)&&miniN<420){ b.mbCD=.1; for(let k=0;k<4;k++){const a=k*Math.PI/2+Math.PI/4;const m=addBall(b.x,b.y,a);if(m){m.mini=1;m.p=0;m.mb=0;m.vx*=1.15;m.vy*=1.15;miniN++;}} sfx.pop(); }
+  const idle=t-lastBreak>3;
+  if(idle){ // stuck between walls: flatten and jitter the bounce angle so the ball travels sideways and finds a gap
+    const sx=b.vx?Math.sign(b.vx):(Math.random()<.5?-1:1), sy=b.vy?Math.sign(b.vy):-1, a=(14+Math.random()*34)*Math.PI/180;
+    b.vx=sx*Math.cos(a)*SPEED; b.vy=sy*Math.sin(a)*SPEED; return false; }
   if(homT>0&&aimBudget>0){ aimBudget--; const j=nearestBrk(b.x,b.y); if(j>=0){ const [tx,ty]=cellXY(j),a=Math.atan2(ty-b.y,tx-b.x); b.vx=Math.cos(a)*SPEED; b.vy=Math.sin(a)*SPEED; b.aimT=.25; } }
   return false;
 }
@@ -628,7 +632,7 @@ function update(dt){
   for(let bi=balls.length-1;bi>=0;bi--){
     const b=balls[bi]; let dead=false; curBall=b;
     if(b.p>0) b.p-=dt;
-    if(b.mbCD>0) b.mbCD-=dt; if(b.aimT>0) b.aimT-=dt;
+    if(b.mbCD>0) b.mbCD-=dt; if(b.aimT>0) b.aimT-=dt; if(b.ghost>0) b.ghost-=dt;
     for(let s=0;s<sub;s++){
       let nx=b.x+b.vx*h,ny=b.y+b.vy*h,bnc=false;
       if(nx<BR){nx=BR;b.vx=Math.abs(b.vx);sfx.wall();bnc=true;} else if(nx>W-BR){nx=W-BR;b.vx=-Math.abs(b.vx);sfx.wall();bnc=true;}
@@ -645,7 +649,7 @@ function update(dt){
         const i=first;
         if(b.mini){ const cx=i%COLS,cy=(i/COLS)|0; for(const [dx,dy] of [[0,0],[1,0],[-1,0],[0,1],[0,-1]]){const cc=cx+dx,r2=cy+dy;if(cc<0||cc>=COLS||r2<0||r2>=ROWS)continue;const j=r2*COLS+cc;if(isBrk(grid[j])) hit(j,true,'#c8683a');}
           burst(cx*CELL+CELL/2,TOP+cy*CELL+CELL/2,'#b2582c',5,120); dead=true; break; }
-        const passable=j=>j<0||grid[j]!==WALL&&(b.p>0||(F('ikasumi')&&inked[j]));
+        const passable=j=>j<0||(grid[j]===WALL?b.ghost>0:(b.p>0||(F('ikasumi')&&inked[j])));
         if(passable(hx)&&passable(hy)&&passable(hd)){
           for(const j of new Set([hx,hy,hd])) if(j>=0) hit(j,true,b.p>0?'#ff6b3d':'#2a2d44');
           b.x=nx;b.y=ny;
@@ -654,11 +658,13 @@ function update(dt){
           if(hy>=0&&!passable(hy)) b.vy=-b.vy; else if(hy<0||passable(hy)) b.y=ny;
           if(hx<0&&hy<0&&hd>=0&&!passable(hd)){ b.vx=-b.vx;b.vy=-b.vy;b.x-= (nx-b.x);b.y-=(ny-b.y); }
           for(const j of new Set([hx,hy,hd])) if(j>=0) hit(j,passable(j));
+          // a ball that keeps rattling off steel walls without breaking anything slips through them for a moment
+          if([hx,hy,hd].some(j=>j>=0&&grid[j]===WALL)){ if(!(t-(b.wbT0||0)<3)){b.wbT0=t;b.wb=0;} if(++b.wb>=6){b.ghost=.5;b.wb=0;} }
           bnc=true;
         }
       } else { b.x=nx;b.y=ny; }
       // never rest inside a steel wall: push out to the nearest open cell
-      { const ic=cellAt(b.x,b.y); if(ic>=0&&grid[ic]===WALL){ const c0=ic%COLS,r0=(ic/COLS)|0;
+      if(!(b.ghost>0)){ const ic=cellAt(b.x,b.y); if(ic>=0&&grid[ic]===WALL){ const c0=ic%COLS,r0=(ic/COLS)|0;
         for(const [dx,dy] of [[0,1],[0,-1],[1,0],[-1,0],[1,1],[-1,1],[1,-1],[-1,-1]]){const c=c0+dx,r=r0+dy;if(c<0||c>=COLS||r<0||r>=ROWS||grid[r*COLS+c]===WALL)continue;
           b.x=c*CELL+CELL/2;b.y=TOP+r*CELL+CELL/2; if(dx) b.vx=Math.abs(b.vx)*dx; if(dy) b.vy=Math.abs(b.vy)*dy; break;} } }
       if(paddleBounce(b,px)||(cloneT>0&&paddleBounce(b,cx2))) bnc=true;
@@ -834,6 +840,8 @@ function draw(){
       ctx.strokeStyle='rgba(255,216,74,.4)';ctx.lineWidth=5;ctx.stroke(); }
     else { const g=ctx.createRadialGradient(s.x,s.y,1,s.x,s.y,8);g.addColorStop(0,'#eaf4ff');g.addColorStop(.5,'#7ab8ff');g.addColorStop(1,'rgba(60,120,255,0)');ctx.fillStyle=g;ctx.beginPath();ctx.arc(s.x,s.y,8,0,6.283);ctx.fill(); }
   }
+  { ctx.strokeStyle='rgba(140,220,255,.85)';ctx.lineWidth=1.5;ctx.beginPath();
+    for(const b of balls){ if(!(b.ghost>0)) continue; ctx.moveTo(b.x+BR+3,b.y);ctx.arc(b.x,b.y,BR+3,0,6.283);} ctx.stroke(); }
   // meatballs
   { let k=0; for(const b of balls){ if(!b.mb&&!b.mini) continue; if(++k>700) break; const r=b.mini?BR*1.5:BR*2;
       ctx.fillStyle='#7a3a1c';ctx.beginPath();ctx.arc(b.x,b.y,r,0,6.283);ctx.fill();
