@@ -460,21 +460,42 @@ function burst(x,y,col,n,sp=120){ for(let i=0;i<n&&parts.length<1600;i++){const 
   parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-40,life:.5+Math.random()*.4,col,s:1.5+Math.random()*2.5});}}
 const cellXY=i=>[(i%COLS)*CELL+CELL/2,TOP+Math.floor(i/COLS)*CELL+CELL/2];
 
-let rainbow=null;
-function rainbowCombo(n){ const big=n>=500,mid=n>=100;
-  rainbow={s:n+' COMBO!!',sub:big?'パスタの奇跡':mid?'ブラボー!!':'グラッツェ!',life:big?3:2.4,max:big?3:2.4,size:big?58:mid?50:44};
-  flash=big?1:.7; flashCol='#ffffff'; shake=Math.min(shake+(big?12:7),16);
-  for(let k=0;k<(big?160:90);k++){const a=Math.random()*6.283,v=150+Math.random()*(big?380:260);
-    if(parts.length<1800) parts.push({x:W/2,y:H*.36,vx:Math.cos(a)*v,vy:Math.sin(a)*v-120,life:1+Math.random()*.8,col:`hsl(${Math.random()*360|0} 95% 62%)`,s:2.5+Math.random()*3.5});}
-  [0,4,7,12,16,19,24].forEach((st,i)=>tone(523*Math.pow(2,st/12),.16,'square',.05,i*.06)); if(big) sweep(); }
+let rainbow=null,fireworks=[];
+// combo milestones: 50 (small) < 100 < 500 < every 1000 (fireworks + rainbow background while the combo lasts)
+function rainbowCombo(n){ const tier=n>=1000?3:n>=500?2:n>=100?1:0;
+  const T=[{size:30,life:1.4,conf:24,flash:.15,shake:2,sub:'グラッツェ!'},{size:44,life:2.2,conf:80,flash:.55,shake:6,sub:'ブラボー!!'},
+           {size:56,life:3.2,conf:220,flash:1,shake:14,sub:'パスタの奇跡'},{size:60,life:3.6,conf:260,flash:1,shake:18,sub:'パスタ・レジェンド'}][tier];
+  rainbow={s:n+(tier>=2?' COMBO!!!':' COMBO!!'),sub:T.sub,life:T.life,max:T.life,size:T.size,tier,ring:0};
+  flash=Math.max(flash,T.flash); flashCol='#ffffff'; shake=Math.min(shake+T.shake,20);
+  const spots=tier>=2?[[W/2,H*.36],[W*.2,H*.5],[W*.8,H*.5]]:[[W/2,H*.36]];
+  for(const [sx,sy] of spots) for(let k=0;k<T.conf/spots.length;k++){const a=Math.random()*6.283,v=120+Math.random()*(160+tier*110);
+    if(parts.length<2000) parts.push({x:sx,y:sy,vx:Math.cos(a)*v,vy:Math.sin(a)*v-100,life:.8+Math.random()*(.5+tier*.3),col:`hsl(${Math.random()*360|0} 95% 62%)`,s:2+Math.random()*(2+tier)});}
+  const notes=[[0,4,7],[0,4,7,12,16],[0,4,7,12,16,19,24],[0,4,7,12,16,19,24,28,31]][tier];
+  notes.forEach((st,i)=>tone(523*Math.pow(2,st/12),.16,'square',.04+tier*.008,i*.055));
+  if(tier>=2){ sweep(); sfx.boom(); }
+  if(tier>=3) for(let k=0;k<9;k++) fireworks.push({x:40+Math.random()*(W-80),y:TOP+40+Math.random()*260,at:t+k*.22,done:false});
+}
+function updateFireworks(){ for(const f of fireworks){ if(f.done||t<f.at) continue; f.done=true; const h=Math.random()*360|0;
+    for(let k=0;k<46;k++){const a=k/46*6.283,v=150+Math.random()*60; if(parts.length<2200) parts.push({x:f.x,y:f.y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:.9+Math.random()*.4,col:`hsl(${(h+k*4)%360} 100% 65%)`,s:2.6});}
+    booms.push({x:f.x,y:f.y,life:.35,max:.35}); if(blipBudget>0){blipBudget--;sfx.pop();} }
+  fireworks=fireworks.filter(f=>!f.done); }
+function drawRainbowBG(){ if(combo<1000) return; const a=.16+.12*Math.abs(Math.sin(t*9));
+  const g=ctx.createLinearGradient(0,0,W,H);for(let k=0;k<=6;k++) g.addColorStop(k/6,`hsla(${(t*220+k*60)%360},100%,60%,${a})`);
+  ctx.fillStyle=g;ctx.fillRect(0,0,W,H); }
 function drawRainbow(){ if(!rainbow) return; const r=rainbow; r.life-=1/60; if(r.life<=0){rainbow=null;return;}
-  const k=1-r.life/r.max, pop=k<.12?k/.12*1.25:k<.22?1.25-(k-.12)/.1*.25:1, fade=Math.min(1,r.life/.5);
-  ctx.save();ctx.globalAlpha=fade;ctx.translate(W/2,H*.36);ctx.rotate(Math.sin(t*9)*.04);ctx.scale(pop,pop);
+  const k=1-r.life/r.max, peak=1.1+r.tier*.12, pop=k<.12?k/.12*peak:k<.22?peak-(k-.12)/.1*(peak-1):1, fade=Math.min(1,r.life/.5);
+  ctx.save();ctx.globalAlpha=fade;ctx.translate(W/2,H*.36);
+  if(r.tier>=2){ // rotating light rays + shockwave ring
+    ctx.save();ctx.rotate(t*1.6);ctx.globalCompositeOperation='lighter';
+    for(let i=0;i<16;i++){ctx.rotate(Math.PI/8);ctx.fillStyle=`hsla(${(t*200+i*22)%360},100%,60%,${.12+.06*r.tier})`;ctx.beginPath();ctx.moveTo(0,0);ctx.lineTo(-18,-260);ctx.lineTo(18,-260);ctx.closePath();ctx.fill();}
+    ctx.restore();
+    const rr=k*420; ctx.strokeStyle=`hsla(${(t*300)%360},100%,70%,${Math.max(0,.8-k*1.4)})`;ctx.lineWidth=8*(1-k)+2;ctx.beginPath();ctx.arc(0,0,rr,0,6.283);ctx.stroke(); }
+  ctx.rotate(Math.sin(t*9)*(.02+r.tier*.015));ctx.scale(pop,pop);
   ctx.font=r.size+'px '+DISP;ctx.textAlign='center';ctx.textBaseline='middle';
   let tw=ctx.measureText(r.s).width; if(tw>W*.9){const f=W*.9/tw;ctx.scale(f,f);} let x=-tw/2;
-  for(let i=0;i<r.s.length;i++){const ch=r.s[i],w=ctx.measureText(ch).width,cx=x+w/2,yy=Math.sin(t*10+i*.7)*6;
-    ctx.lineWidth=9;ctx.strokeStyle='#1a0f0c';ctx.strokeText(ch,cx,yy);
-    ctx.fillStyle=`hsl(${(t*240+i*32)%360} 95% 60%)`;ctx.fillText(ch,cx,yy);x+=w;}
+  for(let i=0;i<r.s.length;i++){const ch=r.s[i],w=ctx.measureText(ch).width,cx=x+w/2,yy=Math.sin(t*10+i*.7)*(3+r.tier*2.5);
+    ctx.lineWidth=7+r.tier*1.5;ctx.strokeStyle='#1a0f0c';ctx.strokeText(ch,cx,yy);
+    ctx.fillStyle=`hsl(${(t*240+i*32)%360} 95% ${r.tier?60:66}%)`;ctx.fillText(ch,cx,yy);x+=w;}
   ctx.font=(r.size*.42)+'px '+DISP;ctx.lineWidth=6;ctx.strokeStyle='#1a0f0c';ctx.strokeText(r.sub,0,r.size*.85);ctx.fillStyle='#fff4e0';ctx.fillText(r.sub,0,r.size*.85);
   ctx.restore(); }
 const CALLS=[[30,'ボーノ!'],[80,'ベリッシモ!!'],[150,'マンマミーア!!!'],[300,'アルデンテ超え!!'],[600,'パスタの神!!!']];
@@ -508,7 +529,7 @@ function destroy(i,col,chain){
   if(type===MUSSEL) explode(i);
   if(type===HARD&&!chain&&atlasOK) fx('bStrong',x,y,30,.28,.9);
   for(const [n,s] of CALLS) if(combo===n){ bigText(s,'#f5c542',1.1,34); arp(392); flash=.35; flashCol='#f5c542'; }
-  if(combo===50||combo===100||combo===500) rainbowCombo(combo);
+  if(combo===50||combo===100||combo===500||(combo>=1000&&combo%1000===0)) rainbowCombo(combo);
   if(Math.random()<1/160) drops.push({x,y,vy:60,type:Math.random()<.7?'tomato':'mentai'});
   if(remain<=0 && clearT===0){
     if(mode==='last'){ bigText('おかわり無限!','#ff6b52',1.2,32); arp(523); flash=.4; flashCol='#fff'; score+=5000; lastSpawn(30); }
@@ -625,7 +646,7 @@ function paddleBounce(b,cx){
   return false;
 }
 function update(dt){
-  t+=dt; musicTick(dt); blipBudget=3; boomSnd-=dt; if(hitT>0) hitT-=dt;
+  t+=dt; updateFireworks(); musicTick(dt); blipBudget=3; boomSnd-=dt; if(hitT>0) hitT-=dt;
   if(stunT>0) stunT-=dt; if(slowT>0) slowT-=dt;
   const kd=(keys.r?1:0)-(keys.l?1:0);
   if(kd&&stunT<=0){ keyHold=(keyHold||0)+dt; const v=(slowT>0?170:Math.min(720,380+keyHold*900)); targetX=Math.max(pw/2,Math.min(W-pw/2,px+kd*v*dt)); px=targetX; } else keyHold=0;
@@ -811,6 +832,7 @@ function draw(){
       ctx.fillStyle='rgba(26,15,12,.45)';ctx.fillRect(0,0,W,H);}
     ctx.drawImage(bonusImg,0,bonusB?bonusB.oy:0,W,ih*k); if(revealT<=0){ctx.fillStyle='rgba(26,15,12,.18)';ctx.fillRect(0,0,W,H);} }
   else for(let y=PY+30;y<H;y+=16)for(let x=0;x<W;x+=16){ctx.fillStyle=((x+y)/16)%2?'#3a1814':'#2a1210';ctx.fillRect(x,y,16,16);}
+  drawRainbowBG();
   if(feverT>0){ctx.fillStyle=`rgba(232,64,42,${.12*feverT*(.6+.4*Math.sin(t*12))})`;ctx.fillRect(0,0,W,H);}
   if(mode!=='bonus'){ctx.strokeStyle=mode==='last'?'#7a1a10':'#4a3028';ctx.lineWidth=2;ctx.strokeRect(1,TOP-15,W-2,PY+30-TOP);}
   // bricks
