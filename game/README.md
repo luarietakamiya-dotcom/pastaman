@@ -6,8 +6,8 @@
 - `atlas.webp` … キャラ・ブロック・アイテム・エフェクトの画像をまとめたもの
 - `voice.mp3` … 必殺技「パスタトーレ！」の声
 - `bgm-8bit.mp3` … 通常ステージのBGM（Supereroe 8-bit）
-- `bgm-jazz.mp3` … ボーナスステージのBGM（Smoke and Velvet、サビの1:33〜から流す）
-- 必殺技を満タンで撃つと `../audio/main-theme.mp3` のサビ（1:43〜）が流れ、終わると元のBGMに戻る
+- `bgm-jazz.mp3` … ボーナスステージのBGM（Smoke and Velvet をサビの1:33から切り出したもの）
+- `bgm-special.mp3` … 必殺技を満タンで撃ったときの曲（メインテーマのサビ1:43〜を切り出したもの）。終わると元のBGMに戻る
 - `config.js` … みんなのランキングの接続先URL
 
 ## みんなのランキングを有効にする（Google スプレッドシート）
