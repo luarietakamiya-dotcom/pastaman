@@ -1253,6 +1253,19 @@ function drawResultCard(){
   g.font='24px '+DISP;g.fillStyle='#f5c542';g.textAlign='right';g.fillText('#パスタマン #パスタマンブレイカー',1170,645);
   return c;
 }
+// Google Fonts only downloads the glyph subsets the page needs; text drawn on canvas (and not in the DOM)
+// can fall back to another face. Load the display face for every character in the page source up front.
+const FONT_FAMILY='"Dela Gothic One"';
+function fontChars(){ const src=document.documentElement.innerHTML; const set=new Set(src.match(/[\u3000-\u9fff\uff00-\uffef]/g)||[]); return [...set].join('')+'0123456789,.:%+×／!?ABCDEFGHIJKLMNOPQRSTUVWXYZ'; }
+let fontsReady=null;
+function ensureFonts(extra){ try{ if(!document.fonts||!document.fonts.load) return Promise.resolve();
+  if(!fontsReady) fontsReady=document.fonts.load('30px '+FONT_FAMILY,fontChars()).catch(()=>{});
+  return extra?Promise.all([fontsReady,document.fonts.load('30px '+FONT_FAMILY,extra).catch(()=>{})]):fontsReady; }catch(e){ return Promise.resolve(); } }
+ensureFonts();
+async function buildResultImage(){ const img=document.getElementById('resImg'); resultBlob=null;
+  const strs=resultStats().flat().join('')+buffSummary().join('')+(rankInfo||'')+'ランキング入り！SCOREBREAKER#パスタマンブレイカー※チートモード';
+  await Promise.race([ensureFonts(strs),new Promise(r=>setTimeout(r,2500))]);
+  try{ const c=drawResultCard(); img.src=c.toDataURL('image/png'); c.toBlob(b=>{resultBlob=b;},'image/png'); }catch(e){ img.removeAttribute('src'); } }
 function buildResult(){
   const ul=document.getElementById('resStats');ul.textContent='';
   for(const [k,v] of resultStats().slice(1)){const li=document.createElement('li');if(k==='ランキング')li.className='full';const a=document.createElement('span');a.textContent=k;const b=document.createElement('b');b.textContent=v;li.append(a,b);ul.appendChild(li);}
@@ -1261,8 +1274,7 @@ function buildResult(){
   resultText='パスタマン ブレイカーで '+score.toLocaleString()+'点！\n'+stageLabel(stageN)+' 到達／最大'+maxCombo.toLocaleString()+'コンボ'+((st.pics||[]).length?'\nご褒美完食 '+(st.pics||[]).length+'枚':'')+(rankInfo?'\nランキング入り！ '+rankInfo:'')+(cheat?'\n（チートモード：'+formName()+'）':'');
   const intent='https://x.com/intent/post?text='+encodeURIComponent(resultText+'\n')+'&url='+encodeURIComponent(GAME_URL)+'&hashtags='+encodeURIComponent('パスタマン,パスタマンブレイカー');
   document.getElementById('shareText').href=intent;
-  resultBlob=null; const img=document.getElementById('resImg');
-  try{ const c=drawResultCard(); img.src=c.toDataURL('image/png'); c.toBlob(b=>{resultBlob=b;},'image/png'); }catch(e){ img.removeAttribute('src'); }
+  buildResultImage();
 }
 function saveResultImage(){ if(!resultBlob) return false; try{const a=document.createElement('a');a.href=URL.createObjectURL(resultBlob);a.download='pastaman-breaker-'+score+'.png';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},2000);return true;}catch(e){return false;} }
 async function shareWithImage(){ const msg=t=>document.getElementById('shareMsg').textContent=t;
