@@ -1064,7 +1064,7 @@ function draw(){
     ctx.strokeText(msg,W/2,PY-48);ctx.fillStyle=`rgba(120,240,110,${.65+.35*Math.sin(t*10)})`;ctx.fillText(msg,W/2,PY-48);}
   if(mode==='bonus'&&running&&clearT===0){ctx.textAlign='center';ctx.font='18px '+DISP;ctx.lineWidth=5;ctx.strokeStyle='#1a0f0c';const tx='残り '+Math.ceil(bonusT)+'秒';ctx.strokeText(tx,W/2+20,29);ctx.fillStyle=bonusT<10?'#ff6b52':'#ffd84a';ctx.fillText(tx,W/2+20,29);}
   if(relaunch&&running&&clearT===0&&!onPad){ctx.textAlign='center';ctx.font='15px '+DISP;ctx.lineWidth=5;ctx.strokeStyle='#1a0f0c';ctx.strokeText('タップでもう1発！',W/2,PY-48);ctx.fillStyle=`rgba(255,216,74,${.55+.45*Math.sin(t*6)})`;ctx.fillText('タップでもう1発！',W/2,PY-48);}
-  if(onPad&&running&&clearT===0){ctx.fillStyle=`rgba(255,244,224,${.5+.5*Math.sin(t*5)})`;ctx.font='13px '+DISP;ctx.fillText('タップで発射！',W/2,PY-34);}
+  if(onPad&&running&&clearT===0){ctx.fillStyle=`rgba(255,244,224,${.5+.5*Math.sin(t*5)})`;ctx.font='13px '+DISP;ctx.fillText(touchUI?'パスタマンをタップで発射！':'タップで発射！',W/2,PY-34);}
   ctx.setTransform(s,0,0,s,0,0);
   if(roul){ const sx2=(Math.random()-.5)*shake,sy2=(Math.random()-.5)*shake; ctx.translate(sx2,sy2); drawRoulette(); ctx.setTransform(s,0,0,s,0,0); }
   if(flash>0){ctx.globalAlpha=flash*.55;ctx.fillStyle=flashCol;ctx.fillRect(0,0,W,H);ctx.globalAlpha=1;}
@@ -1080,13 +1080,17 @@ function fillTitle(){
 let last=performance.now();
 function frame(now){const dt=Math.min(.033,(now-last)/1000);last=now;if(running&&!paused)update(dt);if(roul)roulTick(dt);draw();requestAnimationFrame(frame);}
 function toLogical(e){const r=cv.getBoundingClientRect();return (e.clientX-r.left)/r.width*W;}
-cv.addEventListener('pointerdown',e=>{ if(roul){finishRoulette();return;} if(e.pointerType==='mouse'&&e.button===1){ e.preventDefault(); special(); return; } if(e.pointerType==='mouse'&&e.button!==0) return; targetX=toLogical(e);pdown=true;launch();});
+cv.addEventListener('pointerdown',e=>{ if(roul){finishRoulette();return;} if(e.pointerType==='mouse'&&e.button===1){ e.preventDefault(); special(); return; } if(e.pointerType==='mouse'&&e.button!==0) return; targetX=toLogical(e);pdown=true; touchUI=e.pointerType!=='mouse';
+  // touch: tapping elsewhere only moves; the first shot needs a tap on Pastaman himself (PC shoots on click as before)
+  if(!touchUI||!onPad||onChar(e)) launch();});
+function onChar(e){const r=cv.getBoundingClientRect(),y=(e.clientY-r.top)/r.width*W;return y>PY-95&&Math.abs(toLogical(e)-px)<pw/2+30;}
 window.addEventListener('mousedown',e=>{ if(e.button===1&&running&&e.target!==cv){ e.preventDefault(); special(); } });
 cv.addEventListener('auxclick',e=>e.preventDefault());
 cv.addEventListener('mousedown',e=>{if(e.button===1)e.preventDefault();});
 for(const ev of ['pointerup','pointercancel','blur']) addEventListener(ev,()=>{pdown=false;});
 addEventListener('pointermove',e=>{ if(e.pointerType==='mouse'||e.target===cv||pdown){ targetX=Math.max(0,Math.min(W,toLogical(e))); } });
 cv.addEventListener('pointerdown',e=>{try{cv.setPointerCapture(e.pointerId);}catch(_){}});
+let touchUI=matchMedia('(pointer:coarse)').matches;
 const keys={l:false,r:false};
 addEventListener('keyup',e=>{if(e.key===' ')pdown=false;if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A')keys.l=false;if(e.key==='ArrowRight'||e.key==='d'||e.key==='D')keys.r=false;});
 addEventListener('blur',()=>{keys.l=keys.r=false;});
