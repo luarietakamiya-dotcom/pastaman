@@ -76,6 +76,7 @@ canvas{display:block;width:100%;height:100%;border-radius:6px}
 .resStats{list-style:none;margin:0;padding:0;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:4px 14px}
 .resStats li{display:flex;justify-content:space-between;gap:6px;font-size:12.5px;border-bottom:1px solid #3a2620;padding:3px 0;min-width:0}
 .resStats span{color:var(--muted);white-space:nowrap}.resStats b{color:var(--ink);font-family:var(--display);font-weight:400;text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.resStats li.full{grid-column:1/-1}.resStats li.full b{color:#ffd84a;overflow:visible;white-space:normal}
 .resBuffs{margin:0;font-size:12px!important;color:#ff8fa3!important}
 .resImg{width:100%;border-radius:10px;border:2px solid #4a3028;display:block}
 a.btn{text-decoration:none;display:inline-block}
@@ -578,7 +579,7 @@ function destroy(i,col,chain){
   if(Math.random()<1/160) drops.push({x,y,vy:60,type:Math.random()<.7?'tomato':'mentai'});
   if(remain<=0 && clearT===0){
     if(mode==='last'){ bigText('おかわり無限!','#ff6b52',1.2,32); arp(523); flash=.4; flashCol='#fff'; score+=5000; lastSpawn(30); }
-    else if(mode==='bonus'){ clearT=4.5; revealT=4.5; bonusWon=true; bigText('ご褒美、完食!','#ffd84a',2.4,34); arp(523); arp(659); flash=.8; flashCol='#fff'; score+=10000+Math.ceil(bonusT)*200; }
+    else if(mode==='bonus'){ clearT=4.5; revealT=4.5; bonusWon=true; st.pics=[...new Set([...(st.pics||[]),(bonusN-1)%BONUS.length])]; bigText('ご褒美、完食!','#ffd84a',2.4,34); arp(523); arp(659); flash=.8; flashCol='#fff'; score+=10000+Math.ceil(bonusT)*200; }
     else { clearT=2.2; bigText('STAGE CLEAR!','#3fae5a',2,38); arp(523); flash=.6; flashCol='#fff'; score+=1000*stageN; } }
 }
 // mussel: blast radius, chains through queue
@@ -797,7 +798,7 @@ function fireSpread(x){ const n=3+BL('multi'); for(let k=0;k<n;k++){const b=addB
 function launch(){
   if(running&&!paused&&!onPad&&relaunch&&clearT===0){ relaunch=false; lastBreak=t; fireSpread(px);if(cloneT>0)fireSpread(W-px); sfx.launch(); popText('もう1発！',px,PY-30,'#ffd84a'); return; }
   if(running&&onPad&&clearT===0){onPad=false;lastBreak=t;fireSpread(px);if(cloneT>0)fireSpread(W-px);sfx.launch();} }
-function gameOver(){running=false;bgm(false);buildResult();onGameOver();document.getElementById('shareMsg').textContent='';const o=document.getElementById('over');o.hidden=false;
+function gameOver(){running=false;bgm(false);rankInfo=null;buildResult();onGameOver();document.getElementById('shareMsg').textContent='';const o=document.getElementById('over');o.hidden=false;
   document.getElementById('result').innerHTML=`スコア <b>${score.toLocaleString()}</b><br>${stageLabel(stageN)} ／ 最大コンボ ${maxCombo}`;}
 
 // ---------- draw ----------
@@ -1087,11 +1088,15 @@ document.getElementById('entry').addEventListener('submit',async e=>{
       const m=j.mine||{},parts=[];
       for(const p of ['day','week','month','year','all']) if(m[p]&&m[p].rank) parts.push(PNAME[p]+' '+m[p].rank+'位');
       msg((j.improved?'自己ベスト更新！ ':'登録したよ！ ')+parts.join(' ／ '));
+      const mine=[];for(const p of ['day','all']) if(m[p]&&m[p].rank&&m[p].best===en.score&&m[p].rank<=50) mine.push(PNAME[p]+m[p].rank+'位');
+      if(mine.length){rankInfo=mine.join('・');buildResult();}
       b.textContent='登録済み';renderRank();return;
-    }catch(err){ saveLocal(en); shared=false; msg('通信できなかったので、この端末のランキングに保存したよ'); b.textContent='保存済み'; renderRank(); return; }
+    }catch(err){ saveLocal(en); shared=false; msg('通信できなかったので、この端末のランキングに保存したよ'); b.textContent='保存済み'; renderRank(); localRankInfo(en); return; }
   }
-  saveLocal(en); msg('この端末のランキングに保存したよ'); b.textContent='保存済み'; renderRank();
+  saveLocal(en); msg('この端末のランキングに保存したよ'); b.textContent='保存済み'; renderRank(); localRankInfo(en);
 });
+function localRankInfo(en){ const out=[];for(const p of ['day','all']){const rows=localRank().filter(r=>(r.at||0)>=periodStart(p));const i=rows.findIndex(r=>r.at===en.at);if(i>=0&&i<50) out.push(PNAME[p]+(i+1)+'位');}
+  if(out.length){rankInfo=out.join('・')+'（この端末）';buildResult();} }
 document.getElementById('showRank').addEventListener('click',()=>{fetchRank();document.getElementById('rankView').hidden=false;});
 document.getElementById('closeRank').addEventListener('click',()=>{document.getElementById('rankView').hidden=true;});
 fetchRank();
@@ -1215,13 +1220,13 @@ function drawBuffs(){ const ks=BUFFS.filter(b=>BL(b.id)>0&&b.id!=='life'); if(!k
   ctx.restore(); }
 // ---- result card + share ----
 const GAME_URL='https://luarietakamiya-dotcom.github.io/pastaman/game/';
-let resultBlob=null,resultText='';
+let resultBlob=null,resultText='',rankInfo=null;
 function fmtTime(sec){sec=Math.round(sec);const m=Math.floor(sec/60),s=sec%60;return m+'分'+String(s).padStart(2,'0')+'秒';}
 function resultStats(){ return [
   ['スコア',score.toLocaleString()],['到達',stageLabel(stageN)],['最大コンボ',maxCombo.toLocaleString()],
   ['モード',cheat?'チート（'+formName()+'）':'通常'],['壊したブロック',(st.blocks|0).toLocaleString()],['同時ボール最大',(st.maxBalls|0).toLocaleString()+'個'],
-  ['必殺技（満タン）',(st.specials|0)+'回'],['取ったアイテム',(st.items|0)+'個'],['ボーナス',(st.bonuses|0)+'回'],['プレイ時間',fmtTime(st.time||0)] ]; }
-function buffSummary(){ return BUFFS.filter(b=>BL(b.id)>0).map(b=>b.tag+(BL(b.id)>1?'×'+BL(b.id):'')); }
+  ['必殺技（満タン）',(st.specials|0)+'回'],['取ったアイテム',(st.items|0)+'個'],['ボーナス',(st.bonuses|0)+'回'],['ご褒美完食',(st.pics||[]).length+'／'+BONUS.length+'枚'],['プレイ時間',fmtTime(st.time||0)] ].concat(rankInfo?[['ランキング',rankInfo]]:[]); }
+function buffSummary(){ return BUFFS.filter(b=>BL(b.id)>0).map(b=>b.id==='life'?'残機+'+BL(b.id):b.name+' Lv'+BL(b.id)); }
 function drawResultCard(){
   const c=document.createElement('canvas');c.width=1200;c.height=675;const g=c.getContext('2d');
   const bg=g.createLinearGradient(0,0,1200,675);bg.addColorStop(0,'#2a110c');bg.addColorStop(1,'#120806');g.fillStyle=bg;g.fillRect(0,0,1200,675);
@@ -1234,22 +1239,26 @@ function drawResultCard(){
   else if(atlasOK){const m=SP.hero,k=540/m[3];g.drawImage(ATLAS,m[0],m[1],m[2],m[3],270-m[2]*k/2,80,m[2]*k,m[3]*k);}
   if(atlasOK){const m=SP.logo,k=400/m[2];g.drawImage(ATLAS,m[0],m[1],m[2],m[3],565,36,400,m[3]*k);}
   g.textBaseline='alphabetic';g.textAlign='right';g.font='30px '+DISP;g.fillStyle='#fff4e0';g.fillText('BREAKER',1170,118);g.textAlign='left';
-  g.font='28px '+DISP;g.fillStyle='#a08670';g.fillText('SCORE',570,200);
+  if(!rankInfo){g.font='28px '+DISP;g.fillStyle='#a08670';g.fillText('SCORE',570,200);}
   g.font='86px '+DISP;g.lineWidth=10;g.strokeStyle='#5a1a0c';g.strokeText(score.toLocaleString(),565,285);g.fillStyle='#ffd84a';g.fillText(score.toLocaleString(),565,285);
-  const rows=resultStats().slice(1);g.font='26px '+DISP;
-  rows.forEach((r,i)=>{const col=i%2,row=i/2|0,x=570+col*310,y=345+row*44;g.font='26px '+DISP;g.fillStyle='#a08670';g.fillText(r[0],x,y);const lw=g.measureText(r[0]).width;
-    let fs=26;g.font=fs+'px '+DISP;while(fs>14&&g.measureText(r[1]).width>290-lw-12){fs--;g.font=fs+'px '+DISP;} g.fillStyle='#fff4e0';g.textAlign='right';g.fillText(r[1],x+290,y);g.textAlign='left';});
-  const bs=buffSummary(); if(bs.length){g.font='22px '+DISP;g.fillStyle='#ff8fa3';g.fillText('パワーアップ: '+bs.join(' ').slice(0,40),570,345+5*44+6);}
+  const rows=resultStats().slice(1).filter(r=>r[0]!=='ランキング');g.font='26px '+DISP;
+  rows.forEach((r,i)=>{const col=i%2,row=i/2|0,x=570+col*310,y=338+row*38;g.font='24px '+DISP;g.fillStyle='#a08670';g.fillText(r[0],x,y);const lw=g.measureText(r[0]).width;
+    let fs=24;g.font=fs+'px '+DISP;while(fs>13&&g.measureText(r[1]).width>290-lw-12){fs--;g.font=fs+'px '+DISP;} g.fillStyle='#fff4e0';g.textAlign='right';g.fillText(r[1],x+290,y);g.textAlign='left';});
+  const bs=buffSummary(); if(bs.length){ g.fillStyle='#ff8fa3'; let fs=20;const line='パワーアップ：'+bs.join('・');g.font=fs+'px '+DISP;
+    const words=line.split('・');let y=338+6*38-4,cur='';const lines=[];for(const w of words){const tryL=cur?cur+'・'+w:w;if(g.measureText(tryL).width>600&&cur){lines.push(cur);cur=w;}else cur=tryL;} if(cur) lines.push(cur);
+    lines.slice(0,3).forEach((l,i)=>g.fillText(l,570,y+i*26)); }
+  if(rankInfo){ const rt='ランキング入り！ '+rankInfo;let fs=30;g.font=fs+'px '+DISP;while(fs>16&&g.measureText(rt).width>600){fs--;g.font=fs+'px '+DISP;}
+    g.lineWidth=6;g.strokeStyle='#3a1a00';g.strokeText(rt,570,200);const gr=g.createLinearGradient(570,0,1170,0);gr.addColorStop(0,'#ffd84a');gr.addColorStop(.5,'#fff4b0');gr.addColorStop(1,'#ffb000');g.fillStyle=gr;g.fillText(rt,570,200); }
   if(cheat){g.font='22px '+DISP;g.fillStyle='#ff8fa3';g.fillText('※チートモード',570,640);}
   g.font='24px '+DISP;g.fillStyle='#f5c542';g.textAlign='right';g.fillText('#パスタマン #パスタマンブレイカー',1170,645);
   return c;
 }
 function buildResult(){
   const ul=document.getElementById('resStats');ul.textContent='';
-  for(const [k,v] of resultStats().slice(1)){const li=document.createElement('li');const a=document.createElement('span');a.textContent=k;const b=document.createElement('b');b.textContent=v;li.append(a,b);ul.appendChild(li);}
+  for(const [k,v] of resultStats().slice(1)){const li=document.createElement('li');if(k==='ランキング')li.className='full';const a=document.createElement('span');a.textContent=k;const b=document.createElement('b');b.textContent=v;li.append(a,b);ul.appendChild(li);}
   const bs=buffSummary();const bl=document.getElementById('resBuffs');bl.textContent=bs.length?'パワーアップ：'+bs.join('・'):'';bl.hidden=!bs.length;
   document.getElementById('resScore').textContent=score.toLocaleString();
-  resultText='パスタマン ブレイカーで '+score.toLocaleString()+'点！\n'+stageLabel(stageN)+' 到達／最大'+maxCombo.toLocaleString()+'コンボ'+(cheat?'\n（チートモード：'+formName()+'）':'');
+  resultText='パスタマン ブレイカーで '+score.toLocaleString()+'点！\n'+stageLabel(stageN)+' 到達／最大'+maxCombo.toLocaleString()+'コンボ'+((st.pics||[]).length?'\nご褒美完食 '+(st.pics||[]).length+'枚':'')+(rankInfo?'\nランキング入り！ '+rankInfo:'')+(cheat?'\n（チートモード：'+formName()+'）':'');
   const intent='https://x.com/intent/post?text='+encodeURIComponent(resultText+'\n')+'&url='+encodeURIComponent(GAME_URL)+'&hashtags='+encodeURIComponent('パスタマン,パスタマンブレイカー');
   document.getElementById('shareText').href=intent;
   resultBlob=null; const img=document.getElementById('resImg');
