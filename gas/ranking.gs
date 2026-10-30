@@ -33,7 +33,7 @@ function log_() {
   let sh = ss.getSheetByName(LOG_SHEET);
   if (!sh) {
     sh = ss.insertSheet(LOG_SHEET);
-    sh.appendRow(['time', 'key', 'name', 'score', 'stage', 'combo']);
+    sh.appendRow(['time', 'key', 'name', 'score', 'stage', 'combo', 'chara']);
     const old = ss.getSheetByName(OLD_SHEET);
     if (old) {
       const rows = old.getDataRange().getValues().slice(1).filter(function (r) { return r[0]; });
@@ -66,21 +66,21 @@ function boards_(key) {
     PERIODS.forEach(function (p) {
       if (t < st[p]) return;
       const b = best[p][k];
-      if (!b || score > b.score) best[p][k] = { score: score, stage: Number(r[4]) || 1, combo: Number(r[5]) || 0 };
+      if (!b || score > b.score) best[p][k] = { score: score, stage: Number(r[4]) || 1, combo: Number(r[5]) || 0, chara: String(r[6] || '') };
     });
   });
   const out = {}, mine = {};
   PERIODS.forEach(function (p) {
     const list = Object.keys(best[p]).map(function (k) {
       const b = best[p][k];
-      return { k: k, name: latestName[k] ? latestName[k].name : '名無しのパスタ', score: b.score, stage: b.stage, combo: b.combo };
+      return { k: k, name: latestName[k] ? latestName[k].name : '名無しのパスタ', score: b.score, stage: b.stage, combo: b.combo, chara: b.chara };
     });
     list.sort(function (a, b) { return b.score - a.score; });
     let myRank = 0, myBest = 0;
     list.forEach(function (e, i) { if (key && e.k === key) { myRank = i + 1; myBest = e.score; } });
     mine[p] = { rank: myRank, best: myBest, total: list.length };
     out[p] = list.slice(0, TOP_N).map(function (e) {
-      return { name: e.name, score: e.score, stage: e.stage, combo: e.combo, me: !!key && e.k === key };
+      return { name: e.name, score: e.score, stage: e.stage, combo: e.combo, chara: e.chara, me: !!key && e.k === key };
     });
   });
   return { boards: out, mine: mine };
@@ -115,8 +115,9 @@ function doPost(e) {
     const stage = Math.max(1, Math.min(999, Math.floor(Number(d.stage)) || 1));
     const combo = Math.max(0, Math.min(99999, Math.floor(Number(d.combo)) || 0));
     const name = cleanName_(d.name);
+    const chara = String(d.chara || '').replace(/[\u0000-\u001f\u007f<>=+@]/g, '').slice(0, 10);
     const before = boards_(key).mine.all.best;
-    log_().appendRow([new Date(), key, name, score, stage, combo]);
+    log_().appendRow([new Date(), key, name, score, stage, combo, chara]);
     const b = boards_(key);
     return out_({ ok: true, improved: score > before, best: Math.max(before, score), boards: b.boards, mine: b.mine });
   } catch (err) {
