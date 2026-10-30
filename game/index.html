@@ -1400,7 +1400,8 @@ function __unusedToTitle(){document.getElementById('over').hidden=true;document.
   document.getElementById('title').hidden=false;}
 resize();stageGen(1);balls=[];parts=[];texts=[];drops=[];
 for(let k=0;k<40;k++)addBall(Math.random()*W,PY-60-Math.random()*100,-Math.PI/2+(Math.random()-.5)*2);
-const attract=()=>{ if(running) return; update(1/60); if(balls.length<20) for(let k=0;k<20;k++)addBall(px,PY-20,-Math.PI/2+(Math.random()-.5)*2); };
+const attract=()=>{ if(running||document.getElementById('title').hidden) return; // title demo only, never behind the result screen
+  update(1/60); if(balls.length<20) for(let k=0;k<20;k++)addBall(px,PY-20,-Math.PI/2+(Math.random()-.5)*2); };
 setInterval(attract,16);
 requestAnimationFrame(frame);
 })();
