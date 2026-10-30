@@ -459,7 +459,7 @@ const lapOf=n=>Math.floor((n-1)/NSTAGE), idxOf=n=>(n-1)%NSTAGE;
 // ---- playable characters (normal mode only; cheat mode always uses Pastaman forms) ----
 const CHARAS=[
   {id:'pastaman',name:'パスタマン',col:'#ffd84a',good:'すべてふつう。迷ったらこれ',bad:'とくになし'},
-  {id:'rakugaki',name:'1号（ぱすたまん。）',col:'#ff6b52',good:'ステージごとにランダムで能力がつく',bad:'ステージごとにランダムで弱点もつく'},
+  {id:'rakugaki',name:'1号（ぱすたまん。）',col:'#ff6b52',good:'ステージごとにランダムで能力がつく',bad:'点数0.7倍・ステージごとにランダムで弱点もつく'},
   {id:'agohige',name:'2号（Bito）',col:'#c98a4a',good:'お皿が30%広い',bad:'動きが遅い・分身の時間が半分'},
   {id:'pony',name:'3号（Nera）',col:'#ffb000',good:'全部のブロックを1発で壊す（鉄の壁も）',bad:'発射は1発だけ・必殺技のボールが1/3'},
   {id:'ikemen',name:'4号（Coordi）',col:'#7ab8ff',good:'点数1.5倍・コンボが切れにくい',bad:'お皿が20%狭い・ボールが速い'},
@@ -483,7 +483,7 @@ function charMods(id){ const m={plate:1,move:1,score:1,combo:1,speed:1,items:1,g
   else if(id==='pony'){m.oneHit=true;m.launch=1;m.special=1/3;}
   else if(id==='usagi'){m.move=1.6;m.rescue=true;m.plate=.75;}
   else if(id==='tenin'){m.items=2;m.catch=22;m.gauge=.5;}
-  else if(id==='rakugaki'&&rgNow){m[rgNow.g.k]=rgNow.g.v;m[rgNow.b.k]=rgNow.b.v;}
+  else if(id==='rakugaki'){if(rgNow){m[rgNow.g.k]=rgNow.g.v;m[rgNow.b.k]=rgNow.b.v;} m.score*=.7;}
   return m; }
 function rollRakugaki(){ const g=RG_GOOD[Math.random()*RG_GOOD.length|0];const bads=RG_BAD.filter(b=>b.k!==g.k);rgNow={g,b:bads[Math.random()*bads.length|0]}; }
 let M=charMods('pastaman');
@@ -996,10 +996,6 @@ function draw(){
   for(const b of balls){ if(b.p<=0) continue; ctx.moveTo(b.x+BR+.6,b.y);ctx.arc(b.x,b.y,BR+.6,0,6.283);} ctx.fill();
   for(const q of inks){ctx.fillStyle='#1b1d2a';ctx.beginPath();ctx.arc(q.x,q.y,4.5,0,6.283);ctx.fill();ctx.fillStyle='rgba(170,180,220,.6)';ctx.beginPath();ctx.arc(q.x-1.2,q.y-1.2,1.3,0,6.283);ctx.fill();}
   // attack shots
-  { let near=0; for(const s of shots) if(s.ch<=0) near=Math.max(near,Math.min(1,Math.max(0,(s.y-(PY-260))/220)));
-    if(near>0){ const a=near*(.35+.25*Math.abs(Math.sin(t*12))); const g1=ctx.createLinearGradient(0,0,26,0);g1.addColorStop(0,`rgba(255,20,10,${a})`);g1.addColorStop(1,'rgba(255,20,10,0)');
-      ctx.fillStyle=g1;ctx.fillRect(0,0,26,H); const g2=ctx.createLinearGradient(W,0,W-26,0);g2.addColorStop(0,`rgba(255,20,10,${a})`);g2.addColorStop(1,'rgba(255,20,10,0)');ctx.fillStyle=g2;ctx.fillRect(W-26,0,26,H);
-      const g3=ctx.createLinearGradient(0,PY+40,0,PY-30);g3.addColorStop(0,`rgba(255,20,10,${a*.8})`);g3.addColorStop(1,'rgba(255,20,10,0)');ctx.fillStyle=g3;ctx.fillRect(0,PY-30,W,70); } }
   for(const s of shots){ // danger lane from the block down to the plate, and a red rim around every shot
     const lane=s.ch>0?.35+.35*Math.abs(Math.sin(t*14)):.22;
     ctx.save();ctx.setLineDash([6,6]);ctx.lineDashOffset=-t*60;ctx.strokeStyle=`rgba(255,40,30,${lane})`;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(s.x,s.y+8);ctx.lineTo(s.x,PY-4);ctx.stroke();ctx.restore();
