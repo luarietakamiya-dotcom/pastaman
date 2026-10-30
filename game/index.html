@@ -84,7 +84,9 @@ a.btn{text-decoration:none;display:inline-block}
 #charaView{background:var(--bg)}
 .charaCard{display:grid;grid-template-columns:52px 1fr;gap:1px 8px;align-items:center;text-align:left;padding:7px 8px;border-radius:12px;border:2px solid #4a3028;background:#2a1814;color:var(--ink);cursor:pointer;font-family:var(--body)}
 .charaCard canvas{grid-row:span 3;width:52px;height:60px}
-.charaCard b{font-family:var(--display);font-weight:400;font-size:14px;color:var(--fc,#ffd84a)}
+.charaCard b{font-family:var(--display);font-weight:400;font-size:14px;line-height:1.25;color:var(--fc,#ffd84a);min-width:0}
+.charaCard b small{font-size:10px;margin-left:1px;display:inline-block;white-space:nowrap}
+.charaCard b em{display:inline-block}
 .charaCard b em{font-style:normal;font-size:10px;color:#1a0f0c;background:#ff3b1f;border-radius:6px;padding:1px 5px;margin-left:4px;vertical-align:2px}
 .charaCard .g{font-size:10px;line-height:1.35;color:#9be38a;min-width:0}
 .charaCard .x{font-size:10px;line-height:1.35;color:#ff9a8a;min-width:0}
@@ -457,13 +459,13 @@ const lapOf=n=>Math.floor((n-1)/NSTAGE), idxOf=n=>(n-1)%NSTAGE;
 // ---- playable characters (normal mode only; cheat mode always uses Pastaman forms) ----
 const CHARAS=[
   {id:'pastaman',name:'パスタマン',col:'#ffd84a',good:'すべてふつう。迷ったらこれ',bad:'とくになし'},
-  {id:'rua',name:'ルア',col:'#e9e6f2',hard:true,good:'点数3倍',bad:'攻撃ブロックが最初から多い・お皿が少し小さい'},
-  {id:'agohige',name:'あごひげ',col:'#c98a4a',good:'お皿が30%広い',bad:'動きが遅い・分身の時間が半分'},
-  {id:'ikemen',name:'いけめん',col:'#7ab8ff',good:'点数1.5倍・コンボが切れにくい',bad:'お皿が20%狭い・ボールが速い'},
-  {id:'pony',name:'ポニーテール',col:'#ffb000',good:'全部のブロックを1発で壊す（鉄の壁も）',bad:'発射は1発だけ・必殺技のボールが1/3'},
-  {id:'usagi',name:'うさぎ',col:'#ff8fa3',good:'動きがとても速い・ステージごとに1回ボールを救ってくれる',bad:'お皿が25%狭い'},
-  {id:'tenin',name:'店員',col:'#7fd36b',good:'アイテム2倍・落ちてくるアイテムを拾いやすい',bad:'必殺技ゲージが半分しか溜まらない'},
-  {id:'rakugaki',name:'らくがき',col:'#ff6b52',good:'ステージごとにランダムで能力がつく',bad:'ステージごとにランダムで弱点もつく'},
+  {id:'rakugaki',name:'1号（ぱすたまん。）',col:'#ff6b52',good:'ステージごとにランダムで能力がつく',bad:'ステージごとにランダムで弱点もつく'},
+  {id:'agohige',name:'2号（Bito）',col:'#c98a4a',good:'お皿が30%広い',bad:'動きが遅い・分身の時間が半分'},
+  {id:'pony',name:'3号（Nera）',col:'#ffb000',good:'全部のブロックを1発で壊す（鉄の壁も）',bad:'発射は1発だけ・必殺技のボールが1/3'},
+  {id:'ikemen',name:'4号（Coordi）',col:'#7ab8ff',good:'点数1.5倍・コンボが切れにくい',bad:'お皿が20%狭い・ボールが速い'},
+  {id:'rua',name:'5号（Lua）',col:'#e9e6f2',hard:true,good:'点数3倍',bad:'攻撃ブロックが最初から多い・お皿が少し小さい'},
+  {id:'usagi',name:'6号（Miya）',col:'#ff8fa3',good:'動きがとても速い・ステージごとに1回ボールを救ってくれる',bad:'お皿が25%狭い'},
+  {id:'tenin',name:'マスター（Mako）',col:'#7fd36b',good:'アイテム2倍・落ちてくるアイテムを拾いやすい',bad:'必殺技ゲージが半分しか溜まらない'},
 ];
 const CHARA_SP={"usagi":{"idle":[0,0,153,247,77,148],"idle2":[155,0,146,237,73,144],"run0":[303,0,162,237,91,140],"run1":[467,0,161,234,91,138],"run2":[630,0,157,237,87,123],"dash":[0,249,190,180,84,93],"jump":[192,249,142,235,70,137],"land":[336,249,142,201,73,134],"hit":[480,249,152,194,65,115],"ko":[634,249,158,139,81,68]},"tenin":{"idle":[0,0,160,440,84,150],"idle2":[162,0,200,426,97,141],"run0":[364,0,217,436,109,144],"run1":[583,0,225,410,79,144],"run2":[810,0,236,437,138,145],"dash":[0,442,321,295,97,151],"jump":[323,442,183,330,82,153],"land":[508,442,171,328,92,155],"hit":[681,442,165,379,88,152],"ko":[848,442,261,245,171,30]},"rua":{"idle":[0,0,224,475,108,150],"idle2":[226,0,253,459,114,151],"run0":[481,0,206,467,93,146],"run1":[689,0,268,431,94,158],"run2":[959,0,246,426,168,152],"dash":[0,477,337,306,164,144],"jump":[339,477,291,311,142,151],"land":[632,477,238,331,139,147],"hit":[872,477,243,382,167,150],"ko":[1117,477,294,219,171,56]},"agohige":{"idle":[0,0,201,358,96,150],"idle2":[203,0,181,355,82,135],"run0":[386,0,156,349,88,129],"run1":[544,0,240,337,165,148],"run2":[786,0,236,345,169,130],"dash":[0,360,276,247,90,145],"jump":[278,360,198,263,108,138],"land":[478,360,200,263,106,144],"hit":[680,360,172,316,74,130],"ko":[854,360,221,182,88,53]},"ikemen":{"idle":[0,0,202,387,103,149],"idle2":[204,0,216,383,106,133],"run0":[422,0,218,383,94,130],"run1":[642,0,223,345,66,130],"run2":[867,0,215,341,150,124],"dash":[0,389,316,250,78,129],"jump":[318,389,235,334,116,122],"land":[555,389,218,263,119,137],"hit":[775,389,194,312,77,121],"ko":[971,389,239,203,118,50]},"pony":{"idle":[0,0,232,476,108,150],"idle2":[234,0,252,465,98,149],"run0":[488,0,234,472,118,156],"run1":[724,0,246,436,75,150],"run2":[972,0,238,447,160,152],"dash":[0,478,330,320,77,144],"jump":[332,478,249,339,93,128],"land":[583,478,255,387,107,144],"hit":[840,478,205,393,91,151],"ko":[1047,478,301,266,144,63]},"rakugaki":{"idle":[0,0,257,378,138,154],"idle2":[259,0,251,363,128,175],"run0":[512,0,255,386,106,150],"run1":[769,0,268,373,138,146],"run2":[1039,0,264,390,126,172],"dash":[0,392,259,386,130,172],"jump":[261,392,287,420,122,176],"land":[550,392,276,357,167,170],"hit":[828,392,464,333,120,167],"ko":[1294,392,365,228,120,111]}};
 const CHARA_SRC={"usagi": "chara/usagi.webp", "tenin": "chara/tenin.webp", "rua": "chara/rua.webp", "agohige": "chara/agohige.webp", "ikemen": "chara/ikemen.webp", "pony": "chara/pony.webp", "rakugaki": "chara/rakugaki.webp"};
@@ -1122,7 +1124,7 @@ function renderRank(){
     rows.forEach((r,i)=>{const li=document.createElement('li');
       if(shared?r.me:r.at===localMark) li.className='me';
       const n=document.createElement('span');n.className='n';n.textContent=(i+1);
-      const nm=document.createElement('span');nm.className='nm';nm.textContent=String(r.name||'名無しのパスタ');if(r.chara&&r.chara!=='パスタマン'){const tg=document.createElement('small');tg.className='rc';tg.textContent=String(r.chara).slice(0,8);nm.appendChild(tg);}
+      const nm=document.createElement('span');nm.className='nm';nm.textContent=String(r.name||'名無しのパスタ');if(r.chara&&r.chara!=='パスタマン'){const tg=document.createElement('small');tg.className='rc';tg.textContent=String(r.chara).slice(0,12);nm.appendChild(tg);}
       const sc=document.createElement('span');sc.className='sc';sc.textContent=Number(r.score||0).toLocaleString();
       li.append(n,nm,sc);ol.appendChild(li);});}
 }
@@ -1176,7 +1178,7 @@ if(location.hash==='#ranking'){document.getElementById('rankView').hidden=false;
 (function(){const list=document.getElementById('charaList');
   CHARAS.forEach(c=>{const b=document.createElement('button');b.type='button';b.className='charaCard';b.style.setProperty('--fc',c.col);
     const cv=document.createElement('canvas');cv.width=104;cv.height=120;cv.dataset.chara=c.id;
-    const nm=document.createElement('b');nm.textContent=c.name;if(c.hard){const e=document.createElement('em');e.textContent='HARD';nm.appendChild(e);}
+    const nm=document.createElement('b');{const i=c.name.indexOf('（');nm.textContent=i>0?c.name.slice(0,i):c.name;if(i>0){const sm=document.createElement('small');sm.textContent=c.name.slice(i);nm.appendChild(sm);}}if(c.hard){const e=document.createElement('em');e.textContent='HARD';nm.appendChild(e);}
     const g=document.createElement('span');g.className='g';g.textContent='◎ '+c.good;const x=document.createElement('span');x.className='x';x.textContent='✕ '+c.bad;
     b.append(cv,nm,g,x);b.addEventListener('click',()=>{chara=c.id;cheat=false;form=null;start();});list.appendChild(b);});})();
 function paintCharaIcons(){document.querySelectorAll('#charaList canvas').forEach(cv=>{const g=cv.getContext('2d'),id=cv.dataset.chara;g.clearRect(0,0,104,120);
