@@ -473,6 +473,7 @@ const CHARA_IMG={};for(const k in CHARA_SRC){const im=new Image();im.src=CHARA_S
 const RG_GOOD=[{k:'plate',v:1.3,n:'お皿ワイド'},{k:'pierce',v:true,n:'ボール貫通'},{k:'cloneStage',v:true,n:'ずっと分身'},{k:'items',v:2,n:'アイテム2倍'},{k:'score',v:2,n:'点数2倍'},{k:'gauge',v:1.8,n:'ゲージ急速'}];
 const RG_BAD=[{k:'plate',v:.75,n:'お皿が小さい'},{k:'speed',v:1.2,n:'ボールが速い'},{k:'stun',v:1.7,n:'しびれやすい'},{k:'move',v:.5,n:'動きが遅い'},{k:'items',v:.5,n:'アイテム半分'}];
 let chara='pastaman',rescued=false,rgNow=null;
+function charaShort(){const n=charaName(),i=n.indexOf('（');return i>0?n.slice(0,i):n;}
 function charaName(){const c=CHARAS.find(x=>x.id===chara);return c?c.name:'パスタマン';}
 function charMods(id){ const m={plate:1,move:1,score:1,combo:1,speed:1,items:1,gauge:1,catch:0,clone:1,stun:1,launch:0,special:1,oneHit:false,pierce:false,cloneStage:false,rescue:false,atk:false};
   if(cheat) return m;
@@ -1031,7 +1032,7 @@ function draw(){
   // HUD
   ctx.textBaseline='alphabetic';ctx.textAlign='left';
   ctx.font='19px '+DISP;ctx.lineWidth=4;ctx.strokeStyle='#5a1a0c';ctx.strokeText(score.toLocaleString(),10,28);ctx.fillStyle='#ffd84a';ctx.fillText(score.toLocaleString(),10,28);
-  ctx.font='11px '+DISP;ctx.fillStyle='#fff4e0';ctx.fillText((cheat?'CHEAT '+formName()+'  ':chara!=='pastaman'?charaName()+'  ':'')+stageLabel(stageN)+'   ボール '+balls.length,10,46);
+  ctx.font='11px '+DISP;ctx.fillStyle='#fff4e0';ctx.fillText((cheat?'CHEAT '+formName()+'  ':chara!=='pastaman'?charaShort()+'  ':'')+stageLabel(stageN)+'   ボール '+balls.length,10,46);
   if(chara==='rakugaki'&&!cheat&&rgNow){ctx.font='10px '+DISP;ctx.fillStyle='#7fd36b';ctx.fillText('◎'+rgNow.g.n,10,60);const gw=ctx.measureText('◎'+rgNow.g.n).width;ctx.fillStyle='#ff8a7a';ctx.fillText('✕'+rgNow.b.n,16+gw,60);}
   if(atlasOK){ sprC('life',W-50,24,24); } 
   ctx.textAlign='right';ctx.font='17px '+DISP;ctx.strokeStyle='#5a1a0c';ctx.strokeText('×'+lives,W-10,31);ctx.fillStyle='#ffd84a';ctx.fillText('×'+lives,W-10,31);
@@ -1151,10 +1152,10 @@ document.getElementById('entry').addEventListener('submit',async e=>{
   const name=(document.getElementById('pname').value.trim()||'名無しのパスタ').slice(0,12);
   lsSet(LS_NAME,name); submitted=true; b.disabled=true; b.textContent='登録中…';
   document.getElementById('pname').blur();
-  const en={chara:charaName(),name,score:lastRun.score,stage:lastRun.stage,combo:lastRun.combo,at:Date.now()};
+  const en={chara:charaShort(),name,score:lastRun.score,stage:lastRun.stage,combo:lastRun.combo,at:Date.now()};
   if(RANK_URL){
     try{
-      const r=await fetch(RANK_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:playerKey(),name,score:en.score,stage:en.stage,combo:en.combo,chara:charaName()})});
+      const r=await fetch(RANK_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({key:playerKey(),name,score:en.score,stage:en.stage,combo:en.combo,chara:charaShort()})});
       const j=await r.json();
       if(!j||!j.ok) throw new Error(j&&j.error||'error');
       applyServer(j);
