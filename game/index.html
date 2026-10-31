@@ -525,22 +525,26 @@ function lastSpawn(n){ // random blocks into empty cells, walls included but cap
   let walls=0;for(let i=0;i<grid.length;i++) if(grid[i]===WALL) walls++;
   for(let k=0;k<n;k++){
     const w=2+Math.floor(Math.random()*5),h=1+Math.floor(Math.random()*3),c0=Math.floor(Math.random()*(COLS-w)),r0=Math.floor(Math.random()*(LR-h));
-    const q=Math.random();const v=q<.64?PASTA:q<.78?HARD:q<.86?MUSSEL:q<.94?ATTACK:WALL;
+    const L=lastLv(),p3=.94-(.08+.22*L+(rushOn?.15:0)),k3=p3/.86,q=Math.random();const v=q<.64*k3?PASTA:q<.78*k3?HARD:q<p3?MUSSEL:q<.94?ATTACK:WALL;
     for(let r=r0;r<r0+h;r++)for(let c=c0;c<c0+w;c++){const i=r*COLS+c;if(grid[i])continue;
       let vv=v;if(vv===WALL&&walls>=70) vv=HARD;if(vv===WALL) walls++;
       grid[i]=vv;hp[i]=vv===HARD?3:1;inked[i]=0;burst(c*CELL+CELL/2,TOP+r*CELL+CELL/2,'#fff4e0',1,40);}
-    if(Math.random()<.35){const c=1+Math.floor(Math.random()*(COLS-2)),r=1+Math.floor(Math.random()*(LR-2));
+    if(Math.random()<.35*(1-.75*L)){const c=1+Math.floor(Math.random()*(COLS-2)),r=1+Math.floor(Math.random()*(LR-2));
       if(!grid[r*COLS+c]&&tokens.length<40) tokens.push({x:c*CELL+CELL/2,y:TOP+r*CELL+CELL/2,type:pickToken(stageN),alive:true,ph:Math.random()*6});}
   }
   countRemain();
 }
+// last stage gets harder the longer you survive (fewer items, more attack blocks, faster spawns),
+// with a short 'rush' every 50s followed by a calm stretch
+let lastT0=0,rushOn=false;
+function lastLv(){return mode==='last'?Math.min(1,(t-lastT0)/480):0;}
 function lastGen(){grid=new Uint8Array(COLS*ROWS);hp=new Uint8Array(COLS*ROWS);tokens=tokens.filter(t=>t.alive);queue=[];booms=[];lastSpawn(26);}
 function reset(){st={blocks:0,maxBalls:0,specials:0,items:0,bonuses:0,time:0};buff={};bonusWon=false;score=0;lives=5;stageN=1;pw=84;gauge=0;maxCombo=0;mode='normal';bonusN=0;newStage();}
 function newStage(){const lap=lapOf(stageN),idx=idxOf(stageN); if(chara==='rakugaki'&&!cheat&&mode!=='bonus') rollRakugaki(); M=charMods(chara); rescued=false;
   SPEED=Math.min(400,270+idx*4+lap*40);pw=Math.max(64,84-lap*8)*(1+.12*BL('wide'))*M.plate;
   shots=[];stunT=0;slowT=0;revealT=0;atkCD=2.5;lastBreak=t;relaunch=false;
   if(mode==='bonus'){SPEED=300;pw=84*(1+.12*BL('wide'))*M.plate;bonusT=45;bonusGen();st.bonuses=(st.bonuses|0)+1;if(running&&spT<=0)playTrack('bonus',JAZZ_FROM);}
-  else if(mode==='last'){SPEED=360;pw=72*M.plate;spawnT=3;tokens=[];lastGen();}
+  else if(mode==='last'){SPEED=360;pw=72*M.plate;spawnT=3;tokens=[];lastT0=t;rushOn=false;lastGen();}
   else stageGen(stageN);inked=new Uint8Array(COLS*ROWS);inks=[];balls=[];parts=[];texts=[];drops=[];fxs=[];onPad=true;combo=0;clearT=0;cloneT=0;homT=0;basilT=0;nasuT=0;
   if(BL('guard')) nasuT=6*BL('guard'); if(BL('clone')) cloneT=8*BL('clone')*M.clone; if(M.cloneStage) cloneT=9999; SPEED*=M.speed;
   if(chara==='rakugaki'&&!cheat&&mode!=='bonus'&&rgNow){ texts.push({s:'◎ '+rgNow.g.n,col:'#7fd36b',life:2.8,max:2.8,size:20,big:true,x:W/2,y:H*.53}); texts.push({s:'✕ '+rgNow.b.n,col:'#ff8a7a',life:2.8,max:2.8,size:20,big:true,x:W/2,y:H*.59}); }
@@ -631,7 +635,7 @@ function destroy(i,col,chain){
   if(type===HARD&&!chain&&atlasOK) fx('bStrong',x,y,30,.28,.9);
   for(const [n,s] of CALLS) if(combo===n){ bigText(s,'#f5c542',1.1,34); arp(392); flash=.35; flashCol='#f5c542'; }
   if(combo===50||combo===100||combo===500||(combo>=1000&&combo%1000===0)) rainbowCombo(combo);
-  if(Math.random()<1/160) drops.push({x,y,vy:60,type:Math.random()<.7?'tomato':'mentai'});
+  if(Math.random()<1/(160*(1+2*lastLv()))) drops.push({x,y,vy:60,type:Math.random()<.7?'tomato':'mentai'});
   if(remain<=0 && clearT===0){
     if(mode==='last'){ bigText('おかわり無限!','#ff6b52',1.2,32); arp(523); flash=.4; flashCol='#fff'; score+=5000; lastSpawn(30); }
     else if(mode==='bonus'){ clearT=4.5; revealT=4.5; bonusWon=true; st.pics=[...new Set([...(st.pics||[]),(bonusN-1)%BONUS.length])]; bigText('ご褒美、完食!','#ffd84a',2.4,34); arp(523); arp(659); flash=.8; flashCol='#fff'; score+=10000+Math.ceil(bonusT)*200; }
@@ -708,7 +712,7 @@ function findTarget(x,y){const cx=Math.floor(x/CELL),cy=Math.floor((y-TOP)/CELL)
 function updateShots(dt){
   if(!running||clearT>0) return;
   atkCD-=dt;
-  if(atkCD<=0){ atkCD=Math.max(.9,2.6-lapOf(stageN)*.35)*(.6+Math.random()*.8);
+  if(atkCD<=0){ atkCD=Math.max(.9,2.6-lapOf(stageN)*.35)*(.6+Math.random()*.8)*(rushOn?.5:1)*(1-.35*lastLv());
     const list=[];for(let i=0;i<grid.length;i++) if(grid[i]===ATTACK) list.push(i);
     if(list.length&&shots.length<7){ const i=list[Math.floor(Math.random()*list.length)],[x,y]=cellXY(i);
       shots.push({x,y,vy:0,ch:.7,kind:Math.random()<.5?'stun':'slow',src:i}); } }
@@ -836,7 +840,9 @@ function update(dt){
   shake*=Math.pow(.02,dt); flash=Math.max(0,flash-dt*2.2);
   if(balls.length>200) feverT=Math.min(1,feverT+dt*2); else feverT=Math.max(0,feverT-dt);
   if(mode==='bonus'&&clearT===0&&running){ bonusT-=dt; if(bonusT<=0){ bonusT=0; clearT=2.5; bonusWon=true; bigText('タイムアップ!','#fff4e0',2,34); tone(330,.3,'triangle',.08); } }
-  if(mode==='last'&&running&&clearT===0){ spawnT-=dt; if(spawnT<=0){ spawnT=Math.max(1.4,3.2-(t%600)/400); lastSpawn(2); } }
+  if(mode==='last'&&running&&clearT===0){ const lt=t-lastT0, ph=lt%50, rush=lt>90&&ph>=38;
+    if(rush&&!rushOn){ bigText('ラッシュ!','#ff3b1f',1.4,38); sfx.zap('stun'); shake=Math.min(shake+6,12); } else if(!rush&&rushOn){ bigText('ひと休み','#fff4e0',1,26); }
+    rushOn=rush; spawnT-=dt; if(spawnT<=0){ spawnT=Math.max(1,3.2-1.8*lastLv())*(rush?.45:1); lastSpawn(2); } }
   if(revealT>0) revealT-=dt;
   updateShots(dt);
   if(!onPad&&clearT===0&&!relaunch&&t-lastBreak>RELAUNCH_AFTER&&balls.length>0) relaunch=true;
