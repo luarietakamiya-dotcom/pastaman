@@ -45,6 +45,14 @@ canvas{display:block;width:100%;height:100%;border-radius:6px}
 .btn.mini{font-size:15px;padding:10px 18px;box-shadow:0 4px 0 #b8862a}
 .formH{margin:0;font-family:var(--display);font-weight:400;font-size:26px;color:var(--cheese);text-shadow:0 3px 0 var(--tomato)}
 #formView{background:var(--bg)}
+#dbgView{background:var(--bg)}
+.dbgOpen{margin-top:4px;background:none;border:1px dashed rgba(255,244,224,.35);color:var(--muted);font-size:11px;padding:4px 10px;border-radius:8px;cursor:pointer}
+.dbgL{color:var(--cream,#fff4e0);font-size:14px;display:flex;gap:8px;align-items:center}
+.dbgL select{font-size:14px;padding:4px 6px;border-radius:6px;max-width:220px}
+.dbgH{margin:6px 0 0;color:var(--muted);font-size:12px}
+.dbgRow{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:340px}
+.dbgB{background:rgba(255,216,74,.12);border:1.5px solid var(--cheese);color:var(--cheese);font-size:13px;padding:6px 10px;border-radius:8px;cursor:pointer;min-width:42px}
+#dbgLast .dbgB{background:rgba(255,59,31,.15);border-color:#ff3b1f;color:#ff8a7a;padding:8px 18px}
 .forms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;max-width:340px}
 .formCard{display:grid;grid-template-columns:44px 1fr;gap:2px 8px;align-items:center;text-align:left;padding:8px;border-radius:12px;border:2px solid #4a3028;background:#2a1814;color:var(--ink);cursor:pointer;font-family:var(--body)}
 .formCard canvas{grid-row:span 2;width:44px;height:44px}
@@ -235,6 +243,16 @@ a.btn{text-decoration:none;display:inline-block}
     <p class="small">フォームごとに打てるボールが変わるよ。チートモードのスコアはランキングに載らない。</p>
     <div class="forms" id="formList"></div>
     <button class="btn ghost" id="formBack" type="button">もどる</button>
+    <button class="dbgOpen" id="dbgOpen" type="button">🛠 デバッグモード</button>
+  </div>
+  <div class="overlay" id="dbgView" hidden>
+    <h2 class="formH">デバッグモード</h2>
+    <p class="small">好きな場所から遊べるよ。ランキングには載らない。</p>
+    <label class="dbgL">キャラ <select id="dbgChara"></select></label>
+    <p class="dbgH">何周目の1面から</p><div class="dbgRow" id="dbgLaps"></div>
+    <p class="dbgH">ご褒美ステージ</p><div class="dbgRow" id="dbgBonus"></div>
+    <div class="dbgRow" id="dbgLast"></div>
+    <button class="btn ghost" id="dbgBack" type="button">もどる</button>
   </div>
   <div class="overlay" id="setView" hidden>
     <h2 class="formH">設定</h2>
@@ -472,7 +490,7 @@ const CHARA_SRC={"usagi": "chara/usagi.webp", "tenin": "chara/tenin.webp", "rua"
 const CHARA_IMG={};for(const k in CHARA_SRC){const im=new Image();im.src=CHARA_SRC[k];CHARA_IMG[k]=im;}
 const RG_GOOD=[{k:'plate',v:1.3,n:'お皿ワイド'},{k:'pierce',v:true,n:'ボール貫通'},{k:'cloneStage',v:true,n:'ずっと分身'},{k:'items',v:2,n:'アイテム2倍'},{k:'score',v:2,n:'点数2倍'},{k:'gauge',v:1.8,n:'ゲージ急速'}];
 const RG_BAD=[{k:'plate',v:.75,n:'お皿が小さい'},{k:'speed',v:1.2,n:'ボールが速い'},{k:'stun',v:1.7,n:'しびれやすい'},{k:'move',v:.5,n:'動きが遅い'},{k:'items',v:.5,n:'アイテム半分'}];
-let chara='pastaman',rescued=false,rgNow=null;
+let chara='pastaman',rescued=false,rgNow=null,dbg=false;
 function charaShort(){const n=charaName(),i=n.indexOf('（');return i>0?n.slice(0,i):n;}
 function charaName(){const c=CHARAS.find(x=>x.id===chara);return c?c.name:'パスタマン';}
 function charMods(id){ const m={plate:1,move:1,score:1,combo:1,speed:1,items:1,gauge:1,catch:0,clone:1,stun:1,launch:0,special:1,oneHit:false,pierce:false,cloneStage:false,rescue:false,atk:false};
@@ -1042,7 +1060,7 @@ function draw(){
   // HUD
   ctx.textBaseline='alphabetic';ctx.textAlign='left';
   ctx.font='19px '+DISP;ctx.lineWidth=4;ctx.strokeStyle='#5a1a0c';ctx.strokeText(score.toLocaleString(),10,28);ctx.fillStyle='#ffd84a';ctx.fillText(score.toLocaleString(),10,28);
-  ctx.font='11px '+DISP;ctx.fillStyle='#fff4e0';ctx.fillText((cheat?'CHEAT '+formName()+'  ':chara!=='pastaman'?charaShort()+'  ':'')+stageLabel(stageN)+'   ボール '+balls.length,10,46);
+  ctx.font='11px '+DISP;ctx.fillStyle='#fff4e0';ctx.fillText((dbg?'DEBUG  ':'')+(cheat?'CHEAT '+formName()+'  ':chara!=='pastaman'?charaShort()+'  ':'')+stageLabel(stageN)+'   ボール '+balls.length,10,46);
   if(chara==='rakugaki'&&!cheat&&rgNow){ctx.font='10px '+DISP;ctx.fillStyle='#7fd36b';ctx.fillText('◎'+rgNow.g.n,10,60);const gw=ctx.measureText('◎'+rgNow.g.n).width;ctx.fillStyle='#ff8a7a';ctx.fillText('✕'+rgNow.b.n,16+gw,60);}
   if(atlasOK){ sprC('life',W-50,24,24); } 
   ctx.textAlign='right';ctx.font='17px '+DISP;ctx.strokeStyle='#5a1a0c';ctx.strokeText('×'+lives,W-10,31);ctx.fillStyle='#ffd84a';ctx.fillText('×'+lives,W-10,31);
@@ -1153,7 +1171,7 @@ async function fetchRank(){
 }
 function onGameOver(){
   const ent=document.getElementById('entry'),cn=document.getElementById('cheatNote');
-  ent.hidden=cheat; cn.hidden=!cheat; if(cheat){cn.textContent='チートモード（'+formName()+'）のスコアはランキング対象外だよ';submitted=true;lastRun=null;document.getElementById('entryMsg').textContent='';fetchRank();return;}
+  ent.hidden=cheat||dbg; cn.hidden=!(cheat||dbg); if(cheat||dbg){cn.textContent=dbg?'デバッグモードのスコアはランキング対象外だよ':'チートモード（'+formName()+'）のスコアはランキング対象外だよ';submitted=true;lastRun=null;document.getElementById('entryMsg').textContent='';fetchRank();return;}
   lastRun={score,stage:stageN,combo:maxCombo};submitted=false;
   const inp=document.getElementById('pname');inp.value=lsGet(LS_NAME)||'';
   const b=document.getElementById('submitBtn');b.disabled=false;b.textContent='登録';
@@ -1195,7 +1213,7 @@ if(location.hash==='#ranking'){document.getElementById('rankView').hidden=false;
     const cv=document.createElement('canvas');cv.width=104;cv.height=120;cv.dataset.chara=c.id;
     const nm=document.createElement('b');{const i=c.name.indexOf('（');nm.textContent=i>0?c.name.slice(0,i):c.name;if(i>0){const sm=document.createElement('small');sm.textContent=c.name.slice(i);nm.appendChild(sm);}}if(c.hard){const e=document.createElement('em');e.textContent='HARD';nm.appendChild(e);}
     const g=document.createElement('span');g.className='g';g.textContent='◎ '+c.good;const x=document.createElement('span');x.className='x';x.textContent='✕ '+c.bad;
-    b.append(cv,nm,g,x);b.addEventListener('click',()=>{chara=c.id;cheat=false;form=null;start();});list.appendChild(b);});})();
+    b.append(cv,nm,g,x);b.addEventListener('click',()=>{chara=c.id;cheat=false;form=null;dbg=false;start();});list.appendChild(b);});})();
 function paintCharaIcons(){document.querySelectorAll('#charaList canvas').forEach(cv=>{const g=cv.getContext('2d'),id=cv.dataset.chara;g.clearRect(0,0,104,120);
   let img=null,m=null; if(id==='pastaman'){ if(atlasOK){img=ATLAS;m=SP.idle0;} } else { const im=CHARA_IMG[id]; if(im&&im.complete&&im.naturalWidth){img=im;m=CHARA_SP[id].idle;} }
   if(!img) return; const k=Math.min(100/m[2],116/m[3]); g.drawImage(img,m[0],m[1],m[2],m[3],(104-m[2]*k)/2,120-m[3]*k,m[2]*k,m[3]*k);});}
@@ -1203,10 +1221,23 @@ for(const k in CHARA_IMG) CHARA_IMG[k].addEventListener('load',()=>{if(!document
 document.getElementById('go').addEventListener('click',()=>{paintCharaIcons();document.getElementById('charaView').hidden=false;});
 document.getElementById('charaBack').addEventListener('click',()=>{document.getElementById('charaView').hidden=true;});
 document.getElementById('again').addEventListener('click',start);
+// ---------- debug mode (from the cheat screen): jump to a lap, a bonus stage or the last stage; never ranked ----------
+(function(){
+  const sel=document.getElementById('dbgChara');
+  for(const c of CHARAS){const o=document.createElement('option');o.value=c.id;o.textContent=c.name;sel.appendChild(o);}
+  const mk=(box,label,fn)=>{const b=document.createElement('button');b.type='button';b.className='dbgB';b.textContent=label;b.addEventListener('click',fn);document.getElementById(box).appendChild(b);};
+  const go=(setup)=>{ chara=sel.value; cheat=false; form=null; start(); dbg=true; setup(); newStage(); playTrack(trackFor(),mode==='bonus'?JAZZ_FROM:0); document.getElementById('dbgView').hidden=true; document.getElementById('formView').hidden=true; };
+  for(let l=0;l<5;l++) mk('dbgLaps',(l+1)+'周目',()=>go(()=>{mode='normal';stageN=l*NSTAGE+1;}));
+  for(let k=1;k<=BONUS.length;k++) mk('dbgBonus',String(k),()=>go(()=>{mode='bonus';bonusN=k;stageN=Math.max(1,stageN);}));
+  mk('dbgLast','最終ステージ',()=>go(()=>{mode='last';stageN=LAST_AFTER;}));
+  document.getElementById('dbgOpen').addEventListener('click',()=>{document.getElementById('dbgView').hidden=false;});
+  document.getElementById('dbgBack').addEventListener('click',()=>{document.getElementById('dbgView').hidden=true;});
+})();
+
 (function(){const list=document.getElementById('formList');
   FORMS.forEach(f=>{const b=document.createElement('button');b.type='button';b.className='formCard';b.style.setProperty('--fc',f.col);
     const cv=document.createElement('canvas');cv.width=cv.height=80;cv.dataset.item=f.item;cv.dataset.form=f.id;const nm=document.createElement('b');nm.textContent=f.name;const ds=document.createElement('span');ds.textContent=f.desc;
-    b.append(cv,nm,ds);b.addEventListener('click',()=>{cheat=true;form=f.id;chara='pastaman';start();});list.appendChild(b);});})();
+    b.append(cv,nm,ds);b.addEventListener('click',()=>{cheat=true;form=f.id;chara='pastaman';dbg=false;start();});list.appendChild(b);});})();
 function paintFormIcons(){document.querySelectorAll('#formList canvas').forEach(cv=>{const g=cv.getContext('2d'),it=cv.dataset.item;g.clearRect(0,0,80,80);
   const fid=cv.dataset.form,fi=FORM_IMG[fid];if(fi&&fi.complete&&fi.naturalWidth){const m=FORM_SP[fid].idle,k=Math.min(78/m[2],78/m[3]);g.drawImage(fi,m[0],m[1],m[2],m[3],(80-m[2]*k)/2,(80-m[3]*k)/2,m[2]*k,m[3]*k);return;}
   if(it==='squid'||it==='garlic'){g.save();g.scale(80/32,80/32);drawProc(g,it);g.restore();return;}
@@ -1323,7 +1354,7 @@ let resultBlob=null,resultText='',rankInfo=null;
 function fmtTime(sec){sec=Math.round(sec);const m=Math.floor(sec/60),s=sec%60;return m+'分'+String(s).padStart(2,'0')+'秒';}
 function resultStats(){ return [
   ['スコア',score.toLocaleString()],['到達',stageLabel(stageN)],['最大コンボ',maxCombo.toLocaleString()],
-  ['モード',cheat?'チート（'+formName()+'）':'通常'],['キャラ',cheat?'パスタマン':charaName()],['壊したブロック',(st.blocks|0).toLocaleString()],['同時ボール最大',(st.maxBalls|0).toLocaleString()+'個'],
+  ['モード',dbg?'デバッグ':cheat?'チート（'+formName()+'）':'通常'],['キャラ',cheat?'パスタマン':charaName()],['壊したブロック',(st.blocks|0).toLocaleString()],['同時ボール最大',(st.maxBalls|0).toLocaleString()+'個'],
   ['必殺技（満タン）',(st.specials|0)+'回'],['取ったアイテム',(st.items|0)+'個'],['ボーナス',(st.bonuses|0)+'回'],['ご褒美完食',(st.pics||[]).length+'／'+BONUS.length+'枚'],['プレイ時間',fmtTime(st.time||0)] ].concat(rankInfo?[['ランキング',rankInfo]]:[]); }
 function buffSummary(){ return BUFFS.filter(b=>BL(b.id)>0).map(b=>b.id==='life'?'残機+'+BL(b.id):b.name+' Lv'+BL(b.id)); }
 function drawResultCard(){
@@ -1391,10 +1422,10 @@ function hideAsk(){clearInterval(askTimer);document.getElementById('clearAsk').h
 function goNext(){hideAsk();paused=false;nextStage();}
 document.getElementById('askNext').addEventListener('click',goNext);
 document.getElementById('askPause').addEventListener('click',()=>{hideAsk();advanceStage();
-  try{localStorage.setItem(LS_SAVE,JSON.stringify({v:1,buff,st,chara,stageN,mode,bonusN,score,lives,gauge,maxCombo,cheat,form,at:Date.now()}));}catch(e){}
+  try{localStorage.setItem(LS_SAVE,JSON.stringify({v:1,buff,st,chara,stageN,mode,bonusN,score,lives,gauge,maxCombo,cheat,form,dbg,at:Date.now()}));}catch(e){}
   paused=false;goTitle();});
 document.getElementById('contBtn').addEventListener('click',()=>{const v=readSave();if(!v)return;try{localStorage.removeItem(LS_SAVE);}catch(e){}
-  cheat=!!v.cheat;form=v.form||null;chara=CHARAS.some(c=>c.id===v.chara)?v.chara:'pastaman';document.getElementById('formView').hidden=true;initAudio();if(ac&&ac.state==='suspended')ac.resume();
+  cheat=!!v.cheat;dbg=!!v.dbg;form=v.form||null;chara=CHARAS.some(c=>c.id===v.chara)?v.chara:'pastaman';document.getElementById('formView').hidden=true;initAudio();if(ac&&ac.state==='suspended')ac.resume();
   document.getElementById('title').hidden=true;document.getElementById('over').hidden=true;
   score=v.score|0;lives=Math.max(1,v.lives|0);stageN=Math.max(1,v.stageN|0);mode=v.mode||'normal';bonusN=v.bonusN|0;gauge=+v.gauge||0;maxCombo=v.maxCombo|0;pw=84;buff=(v.buff&&typeof v.buff==='object')?v.buff:{};st=(v.st&&typeof v.st==='object')?v.st:{blocks:0,maxBalls:0,specials:0,items:0,bonuses:0,time:0};
   newStage();running=true;spT=0;playTrack(trackFor(),0);});
