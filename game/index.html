@@ -932,10 +932,11 @@ function drawHero(x,vx,clone){
   if(cim&&cim.complete&&cim.naturalWidth){ const n=charPose(heroFrame(vx)),m=CHARA_SP[chara][n],fixed=n==='ko';
     // tall characters: cap the height at 2x the plate width, then lay a full-width plate over their own
     const id0=CHARA_SP[chara].idle, sf=Math.min(1,2.0*id0[5]/id0[3]);
-    const pcx=fixed?m[2]/2:m[4],pw0=fixed?m[2]*.7:m[5],k=pw/pw0*sf,w=m[2]*k,h=m[3]*k;
+    // one scale per character (from the idle pose) so every pose is drawn the same size; the plate centre anchors x
+    const pcx=fixed?m[2]/2:m[4],k=pw/id0[5]*sf,w=m[2]*k,h=m[3]*k;
     const flip=(n.startsWith('run')||n==='dash')?vx<0:clone;
     const jy=(n==='jump'||n==='land')?-Math.sin(Math.PI*(1-storm/stormMax))*14:0, sx=n==='hit'&&stunT>0?(Math.random()-.5)*3:0;
-    ctx.save();ctx.translate(x+sx,PY-7+jy+(fixed?h*.35:0));if(flip)ctx.scale(-1,1);
+    ctx.save();ctx.translate(x+sx,PY-7+jy+(fixed?id0[3]*k-h:0));if(flip)ctx.scale(-1,1);
     if(clone) drawGhost(cim,m,-pcx*k,0,w,h); else { if(slowT>0){ctx.shadowColor='#7ab8ff';ctx.shadowBlur=16;} ctx.drawImage(cim,m[0],m[1],m[2],m[3],-pcx*k,0,w,h);}
     ctx.restore();
     if(sf<.8&&!fixed){ const a=ctx.globalAlpha,cx=x+sx,cy=PY-2+jy,rx=pw/2,ry=Math.max(4,pw*.09); if(clone) ctx.globalAlpha=a*.5;
@@ -946,10 +947,10 @@ function drawHero(x,vx,clone){
     return; }
   const fim=cheat&&FORM_IMG[form];
   if(fim&&fim.complete&&fim.naturalWidth){ const n0=heroFrame(vx);let n=formPose(n0);if(n==='dash') n=vx>0?'dashR':'dashL';
-    const m=FORM_SP[form][n],fixed=n==='ko';const pcx=fixed?m[2]/2:m[4],pw0=fixed?m[2]*.7:m[5];const k=pw/pw0,w=m[2]*k,h=m[3]*k;
+    const m=FORM_SP[form][n],fi0=FORM_SP[form].idle,fixed=n==='ko';const pcx=fixed?m[2]/2:m[4];const k=pw/fi0[5],w=m[2]*k,h=m[3]*k;
     const flip=n.startsWith('run')?vx<0:(n.startsWith('dash')?false:clone);
     const jy=n==='jump'?-Math.sin(Math.PI*(1-storm/stormMax))*14:0, sx=n==='hit'&&stunT>0?(Math.random()-.5)*3:0;
-    ctx.save();ctx.translate(x+sx,PY-7+jy+(fixed?h*.35:0));if(flip)ctx.scale(-1,1);
+    ctx.save();ctx.translate(x+sx,PY-7+jy+(fixed?fi0[3]*k-h:0));if(flip)ctx.scale(-1,1);
     if(clone) drawGhost(fim,m,-pcx*k,0,w,h); else { if(slowT>0){ctx.shadowColor='#7ab8ff';ctx.shadowBlur=16;} ctx.drawImage(fim,m[0],m[1],m[2],m[3],-pcx*k,0,w,h);} ctx.restore();return; }
   const n=heroFrame(vx),m=SP[n];
   const fixed=(n==='storm'||n==='hit'||n==='ko');
