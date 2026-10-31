@@ -1173,7 +1173,7 @@ async function fetchRank(){
 function onGameOver(){
   const ent=document.getElementById('entry'),cn=document.getElementById('cheatNote');
   ent.hidden=cheat||dbg; cn.hidden=!(cheat||dbg); if(cheat||dbg){cn.textContent=dbg?'デバッグモードのスコアはランキング対象外だよ':'チートモード（'+formName()+'）のスコアはランキング対象外だよ';submitted=true;lastRun=null;document.getElementById('entryMsg').textContent='';fetchRank();return;}
-  lastRun={score,stage:stageN,combo:maxCombo};submitted=false;
+  lastRun={score:Math.min(score,99999999),stage:stageN,combo:maxCombo}; // ranking tops out at 99,999,999submitted=false;
   const inp=document.getElementById('pname');inp.value=lsGet(LS_NAME)||'';
   const b=document.getElementById('submitBtn');b.disabled=false;b.textContent='登録';
   document.getElementById('entryMsg').textContent=lsGet(LS_NAME)?'前に使った名前を入れておいたよ':'名前を入れてランキングに登録しよう';

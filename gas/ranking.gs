@@ -8,7 +8,7 @@
 const LOG_SHEET = 'log';
 const OLD_SHEET = 'ranking'; // 旧バージョンの自己ベスト表（あれば初回に log へ取り込む）
 const TOP_N = 50;
-const MAX_SCORE = 50000000;
+const MAX_SCORE = 99999999;
 const JST = 9 * 3600 * 1000;
 const DAY = 24 * 3600 * 1000;
 const PERIODS = ['day', 'week', 'month', 'year', 'all'];
