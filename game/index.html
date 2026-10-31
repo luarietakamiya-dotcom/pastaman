@@ -463,7 +463,7 @@ const CHARAS=[
   {id:'agohige',name:'2号（Bito）',col:'#c98a4a',good:'お皿が30%広い',bad:'動きが遅い・分身の時間が半分'},
   {id:'pony',name:'3号（Neru）',col:'#ffb000',good:'全部のブロックを1発で壊す（鉄の壁も）',bad:'発射は2発だけ・必殺技のボールが半分'},
   {id:'ikemen',name:'4号（Coordi）',col:'#7ab8ff',good:'点数1.5倍・コンボが切れにくい',bad:'お皿が20%狭い・ボールが速い'},
-  {id:'rua',name:'5号（Lua）',col:'#e9e6f2',hard:true,good:'点数2.3倍',bad:'攻撃ブロックが最初から多い・お皿が少し小さい'},
+  {id:'rua',name:'5号（Lua）',col:'#e9e6f2',hard:true,good:'点数2.6倍',bad:'攻撃ブロックが最初から多い・お皿が少し小さい'},
   {id:'usagi',name:'6号（Miya）',col:'#ff8fa3',good:'動きがとても速い・ステージごとに1回ボールを救ってくれる',bad:'お皿が25%狭い'},
   {id:'tenin',name:'マスター（Mako）',col:'#7fd36b',good:'アイテム2倍・落ちてくるアイテムを拾いやすい',bad:'必殺技ゲージが半分しか溜まらない'},
 ];
@@ -477,7 +477,7 @@ function charaShort(){const n=charaName(),i=n.indexOf('（');return i>0?n.slice(
 function charaName(){const c=CHARAS.find(x=>x.id===chara);return c?c.name:'パスタマン';}
 function charMods(id){ const m={plate:1,move:1,score:1,combo:1,speed:1,items:1,gauge:1,catch:0,clone:1,stun:1,launch:0,special:1,oneHit:false,pierce:false,cloneStage:false,rescue:false,atk:false};
   if(cheat) return m;
-  if(id==='rua'){m.plate=.88;m.score=2.3;m.atk=true;}
+  if(id==='rua'){m.plate=.88;m.score=2.6;m.atk=true;}
   else if(id==='agohige'){m.plate=1.3;m.move=.45;m.clone=.5;}
   else if(id==='ikemen'){m.score=1.5;m.combo=1.7;m.plate=.8;m.speed=1.15;}
   else if(id==='pony'){m.oneHit=true;m.launch=2;m.special=1/2;}
@@ -620,7 +620,7 @@ function destroy(i,col,chain){
   const type=grid[i]; if(!isBrk(type)) return; grid[i]=0; remain--; st.blocks=(st.blocks|0)+1; inked[i]=0; lastBreak=t; relaunch=false; if(curBall) curBall.wb=0;
   if(cheat&&curBall&&!chain){ if(form==='carbonara'){ const [mx,my]=cellXY(i); melt(mx,my,9); } else if(form==='pescatore') miniBlast(i); }
   combo++; comboT=.7*M.combo; if(combo>maxCombo) maxCombo=combo;
-  const mult=1+Math.floor(combo/20);
+  const mult=Math.min(40,1+Math.floor(combo/20)); // capped so the endless last stage can't run away
   if(combo===20) fx('x2',W/2,H*.3,120,.9,.3); else if(combo===40) fx('x3',W/2,H*.3,130,.9,.3);
   score+=Math.round(10*mult*(1+.25*BL('score'))*M.score); gauge=Math.min(GMAX,gauge+(chain?.2:1)/(1+balls.length/60)*(1+.3*BL('gauge'))*M.gauge);
   const [x,y]=cellXY(i);
